@@ -6,8 +6,15 @@ h1 {
     color: red;
 }
 
+h2 {
+    color: blue;
+}
+
+#qr-video {
+    width: 400px;
+}
+
 #video-container {
-    height: 200px;
     line-height: 0;
     stroke: rgba(255, 255, 255, .5) !important;
     stroke-width: 15 !important;
