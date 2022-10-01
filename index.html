@@ -11,14 +11,6 @@
 </div>
 <div>
     <label>
-        Highlight Style
-        <select id="scan-region-highlight-style-select">
-            <option value="default-style">Default style</option>
-            <option value="example-style-1">Example custom style 1</option>
-            <option value="example-style-2">Example custom style 2</option>
-        </select>
-    </label>
-    <label>
         <input id="show-scan-region" type="checkbox">
         Show scan region canvas
     </label>
@@ -52,11 +44,8 @@
     const videoContainer = document.getElementById('video-container');
     const camHasCamera = document.getElementById('cam-has-camera');
     const camList = document.getElementById('cam-list');
-    const camHasFlash = document.getElementById('cam-has-flash');
-    const flashState = document.getElementById('flash-state');
     const camQrResult = document.getElementById('cam-qr-result');
     const camQrResultTimestamp = document.getElementById('cam-qr-result-timestamp');
-    const fileSelector = document.getElementById('file-selector');
     const fileQrResult = document.getElementById('file-qr-result');
 
     function setResult(label, result) {
@@ -96,11 +85,6 @@
 
     // for debugging
     window.scanner = scanner;
-
-    document.getElementById('scan-region-highlight-style-select').addEventListener('change', (e) => {
-        videoContainer.className = e.target.value;
-        scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
-    });
 
     document.getElementById('show-scan-region').addEventListener('change', (e) => {
         const input = e.target;
