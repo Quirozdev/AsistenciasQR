@@ -1,25 +1,33 @@
-/* Load the library */
-<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-
-/*With some options*/
-<a href="./index.html">Escanear QR</a>
-<label for="generar"></label>
-<input type="text" name="generar" id="generar">
-<button id="btngenera">Generar</button>
-<div id="qrcode"></div>
-<script type="text/javascript">
-let btnGenera = document.getElementById("btngenera");
-let texto = document.getElementById("generar");
-btnGenera.addEventListener("click", generarCodigoQR);
-function generarCodigoQR() {
-    var qrcode = new QRCode(document.getElementById("qrcode"), {
-	text: texto.value,
-	width: 128,
-	height: 128,
-	colorDark : "#5868bf",
-	colorLight : "#ffffff",
-	correctLevel : QRCode.CorrectLevel.H
-})
-}
-;
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <a href="./index.html">Escanear QR</a>
+    <label for="generar"></label>
+    <input type="text" name="generar" id="generar">
+    <button id="btngenera">Generar</button>
+    <div id="qrcode"></div>
+    <script type="text/javascript">
+    let btnGenera = document.getElementById("btngenera");
+    let texto = document.getElementById("generar");
+    btnGenera.addEventListener("click", generarCodigoQR);
+    function generarCodigoQR() {
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: texto.value,
+        width: 128,
+        height: 128,
+        colorDark : "#5868bf",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    })
+    }
+    ;
+    </script>
+</body>
+</html>
