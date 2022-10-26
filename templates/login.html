@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}    
+    <h1>Acceder</h1>
+    <p>{{mensaje}}</p>
+    <form action="" method="POST">
+        <label for="expediente">Expediente</label>
+        <input type="text" id="expediente" name="expediente" maxlength="54" required>
+        <label for="contrasenia">Contraseña</label>
+        <input type="password" id="contrasenia" name="contrasenia" maxlength="108" required>
+        <input type="submit" name="login" value="Acceder">
+    </form>
+    <a href="/registro">Registrarse</a>
+    <a href="/recuperar_contrasenia">Olvidé mi contraseña</a>
+{% endblock %}

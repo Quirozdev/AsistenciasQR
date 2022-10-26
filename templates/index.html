@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}AsistenciasQR{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}    
+    {% if usuario.tipo_usuario != "Invitado" %}
+        <h1>Hola {{usuario.nombre}} {{usuario.apellido_paterno}} {{usuario.apellido_materno}}!</h1>
+        <p>{{mensaje}}</p>
+        {% if usuario.tipo_usuario == 'Docente' %}
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                Crear grupo de asistencias
+                </a>
+                <div class="dropdown-menu">
+                    <form class="px-4 py-3" action="" method="POST">
+                    <div class="mb-3">
+                        <label for="clave" class="form-label">Clave (Debe ser única y es la que será compartida con tus estudiantes para acceder al grupo)</label>
+                        <input type="text" class="form-control" id="clave" name="clave" maxlength="254" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre_grupo" class="form-label">Nombre del grupo</label>
+                        <input type="text" class="form-control" id="nombre_grupo" name="nombre_grupo" maxlength="254" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción del grupo</label>
+                        <textarea rows="6" cols="48" id="descripcion" name="descripcion" class="form-control" placeholder="Este grupo es para..." maxlength="508" required></textarea>
+                    </div>
+                    <input type="submit" class="submitButton" name="crear_grupo" value="Crear">
+                    </form>
+                </div>
+            </div>
+            {% for grupo in grupos %}
+                <div class="card">
+                    <div class="card-header">
+                        {{grupo.nombre}}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Clave de acceso: {{grupo.clave}}</h5>
+                        <p class="card-text">{{grupo.descripcion}}</p>
+                        <a href="/grupo/{{grupo.clave}}" class="btn btn-primary">Ir</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                Unirse a un grupo de asistencias
+                </a>
+                <div class="dropdown-menu">
+                    <form class="px-4 py-3" action="" method="POST">
+                    <div class="mb-3">
+                        <label for="clave" class="form-label">Clave del grupo</label>
+                        <input type="text" class="form-control" id="clave" name="clave" maxlength="254" required>
+                    </div>
+                    <input type="submit" class="submitButton" name="unirse_grupo" value="Unirse">
+                    </form>
+                </div>
+            </div>
+            {% for grupo in grupos %}
+            <div class="card">
+                <div class="card-header">
+                {{grupo.nombre}}
+                </div>
+                <div class="card-body">
+                <h5 class="card-title">Propietario: {{grupo.nombre_propietario}} {{grupo.apellido_paterno_propietario}} {{grupo.apellido_materno_propietario}}</h5>
+                <p class="card-text">{{grupo.descripcion}}</p>
+                <a href="/grupo/{{grupo.clave}}" class="btn btn-primary">Ir</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        <a href="/logout">Cerrar sesion</a>
+    {% else %}
+        <h1>Hola invitado!</h1>
+        <p>Registrate <a href="/registro">aqui</a></p>
+        <p>O Accede <a href="/login">aqui</a></p>
+    {% endif %}
+{% endblock %}

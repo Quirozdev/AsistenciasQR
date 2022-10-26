@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{Asistencias}}{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    </style>
+{% endblock %}
+{% block body %}
+<table>
+    <thead>
+      <tr>
+        <th>Estudiante</th>
+        {% for fecha in fechas %}
+            <th>{{fecha}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    {% for expediente, asistencia in asistencias.items() %}
+          <tr>
+              <td>{{datos_estudiantes[expediente]['apellido_paterno']}} {{datos_estudiantes[expediente]['apellido_materno']}} {{datos_estudiantes[expediente]['nombre']}}</td>
+              {% for fecha in fechas %}
+                {% if usuario.tipo_usuario == "Docente" %}
+                  <td>
+                    <select onchange="actualizarValor(this)" name="{{expediente}} {{fecha}}" id="{{expediente}} {{fecha}}">
+                      {% if asistencia[fecha] == "Asistencia" %}
+                      <option value="asistencia" selected>Asistencia</option>
+                      <option value="retardo">Retardo</option>
+                      <option value="falta">Falta</option>
+                      {% elif asistencia[fecha] == "Retardo" %}
+                      <option value="asistencia">Asistencia</option>
+                      <option value="retardo" selected>Retardo</option>
+                      <option value="falta">Falta</option>
+                      {% else %}
+                      <option value="asistencia">Asistencia</option>
+                      <option value="retardo">Retardo</option>
+                      <option value="falta" selected>Falta</option>
+                      {% endif %}
+                    </select>
+                  </td>
+                {% else %}
+                  <td>{{asistencia[fecha]}}</td>
+                {% endif %}
+              {% endfor %}
+          </tr>
+      {% endfor %}
+</table>
+
+
+<script>
+  function actualizarValor(select) {
+      /*
+      Esta función está enlazada a todos los select que se generan dinámicamente y se ejecuta cuando se cambia 
+      una opción dentro del select.
+      */
+      // se crea un formulario "invisible" que va a servir para generar un POST y poder mandar los datos a Python
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.path = '/asistencias/{{clave_grupo}}';
+      // se crea un elemento input para el formulario
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      // con este nombre se obtienen los siguientes datos
+      hiddenField.name = 'datos_asistencia';
+      // los datos van a ser los nombres de los select que se generan dinámicamente con el expediente del
+      // estudiante (fila) y la fecha (columna)
+      hiddenField.value = select.name + " " + select.value;
+      form.appendChild(hiddenField);
+      document.body.appendChild(form);
+      // Se lanza el POST
+      form.submit();
+      /*
+      console.log(select.name)
+      console.log(select.id)
+      console.log(select.value)
+      */
+  }
+</script>
+{% endblock %}

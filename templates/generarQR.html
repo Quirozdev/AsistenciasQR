@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Generar código QR{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}
+<p>{{mensaje}}</p>
+<form action="" method="POST">
+        <label for="clave">Clave del código QR</label>
+        <input type="text" id="clave" name="clave" maxlength="254" required>
+        <label for='hora_inicio'>Hora de inicio</label>
+        <input type="time" id="hora_inicio" name="hora_inicio" required>
+        <label for='hora_asistencia'>Hora límite para asistencia</label>
+        <input type="time" id="hora_asistencia" name="hora_asistencia" required>
+        <label for='hora_retardo'>Hora límite para retardo</label>
+        <input type="time" id="hora_retardo" name="hora_retardo" required>
+        <input type="submit" name="generar" value="Generar">
+</form>
+{% endblock %}

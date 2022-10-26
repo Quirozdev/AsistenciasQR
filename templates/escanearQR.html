@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Escanear código QR{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    #video-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #qr-video {
+        width: 50%;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<p>{{mensaje}}</p>
+<div id="video-container">
+    <video id="qr-video"></video>
+</div>
+<div>
+    <b>Seleccionar cámara:</b>
+    <select id="cam-list">
+        <option value="environment" selected>Cámara trasera</option>
+        <option value="user">Cámara frontal</option>
+    </select>
+</div>
+<hr>
+<form action="" method="POST">
+    <input type="password" id="clave" name="clave" maxlength="254" readonly required>
+    <input type="submit" id="registrar_asistencia" name="registrar_asistencia" value="Registrar asistencia" disabled>
+</form>
+<span id="cam-qr-result"></span>
+<!--<script src="../qr-scanner.umd.min.js"></script>-->
+<!--<script src="../qr-scanner.legacy.min.js"></script>-->
+<script type="module">
+    import QrScanner from "{{url_for('static', filename='js/qr-scanner.min.js')}}";
+
+    const video = document.getElementById('qr-video');
+    const videoContainer = document.getElementById('video-container');
+    const camList = document.getElementById('cam-list');
+    const camQrResult = document.getElementById('cam-qr-result');
+    const clave = document.getElementById('clave');
+    const botonRegistrar = document.getElementById('registrar_asistencia');
+    // cuando se escanea el codigo qr
+    function setResult(label, result) {
+        // ponerle al input de clave el texto escaneado (la clave)
+        clave.value = result.data;
+        // se habilita el boton de submit (Registrar asistencia)
+        botonRegistrar.disabled = false;
+        //label.textContent = result.data;
+        // camQrResultTimestamp.textContent = new Date().toString();
+        //label.style.color = 'teal';
+        //clearTimeout(label.highlightTimeout);
+        //label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
+    }
+
+    // ####### Web Cam Scanning #######
+
+    const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+        onDecodeError: error => {
+            //camQrResult.textContent = error;
+            //camQrResult.style.color = 'inherit';
+        },
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+    });
+
+    scanner.start().then(() => {
+        // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
+        // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
+        // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
+        // start the scanner earlier.
+        QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+            const option = document.createElement('option');
+            option.value = camera.id;
+            option.text = camera.label;
+            camList.add(option);
+        }));
+    });
+
+    // for debugging
+    window.scanner = scanner;
+
+    camList.addEventListener('change', event => {
+        scanner.setCamera(event.target.value);
+    });
+
+</script>
+{% endblock %}

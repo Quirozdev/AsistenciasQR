@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{grupo.nombre}}{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}
+{% if usuario.tipo_usuario == 'Docente' %}
+    {% if codigo_qr_hoy != None %}
+    <h2>Código QR del dia de {{fecha}}</h2>
+    <div id="qrcode"></div>
+    <script src="{{url_for('static', filename='js/qrcode.min.js')}}"></script>
+    <script type="text/javascript">
+    let contenedor_codigo_qr = document.getElementById("qrcode");
+    function generarCodigoQR() {
+        var qrcode = new QRCode(contenedor_codigo_qr, {
+        text: '{{codigo_qr_hoy.clave}}',
+        width: 128,
+        height: 128,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    })
+    }
+    ;
+    generarCodigoQR();
+    </script>
+    {% else %}
+        <h2>No se ha generado un código QR el día de hoy ({{fecha}})</h2>
+        <a class="btn btn-primary" href="/generar_qr/{{grupo.clave}}" role="button">Generar código QR para hoy</a>
+    {% endif %}
+    <a class="btn btn-primary" href="#" role="button">Ver lista de estudiantes</a>
+{% else %}
+    <p>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</p>
+    <a class="btn btn-primary" href="/escanear_qr/{{grupo.clave}}" role="button">Escanear Código QR</a>
+{% endif %}
+<a class="btn btn-primary" href="/asistencias/{{grupo.clave}}" role="button">Consultar asistencias</a>
+{% endblock %}

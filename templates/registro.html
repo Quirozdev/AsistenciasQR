@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Registrarse{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}    
+    <h1>Registrarse</h1>
+    <p>{{mensaje}}</p>
+    <form action="" method="POST">
+        <label for="expediente">Expediente</label>
+        <input type="text" name="expediente" id="expediente" maxlength="54" required>
+        <label for="nombre">Nombre(s)</label>
+        <input type="text" name="nombre" id="nombre" maxlength="54" required>
+        <label for="apellido_paterno">Apellido Paterno</label>
+        <input type="text" name="apellido_paterno" id="apellido_paterno" maxlength="54" required>
+        <label for="apellido_materno">Apellido Materno</label>
+        <input type="text" name="apellido_materno" id="apellido_materno" maxlength="54" required>
+        <label for="correo">Correo</label>
+        <input type="email" name="correo" id="correo" maxlength="254" required>
+        <label for="tipo_usuario">Tipo de usuario</label>
+        <select name="tipo_usuario" id="tipo_usuario" required>
+            <option value="Estudiante" selected>Estudiante</option>
+            <option value="Docente">Docente</option>
+        </select>
+        <label for="contrasenia">Contraseña</label>
+        <input type="password" name="contrasenia" id="contrasenia" maxlength="108" required>
+        <input type="submit" name="registrarse" value="Registrarse" />
+    </form>
+{% endblock %}
