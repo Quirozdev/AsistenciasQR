@@ -15,6 +15,7 @@
 </style>
 {% endblock %}
 {% block body %}
+{% if usuario.tipo_usuario == "Estudiante" %}
 <p>{{mensaje}}</p>
 <div id="video-container">
     <video id="qr-video"></video>
@@ -27,10 +28,6 @@
     </select>
 </div>
 <hr>
-<form action="" method="POST">
-    <input type="password" id="clave" name="clave" maxlength="254" readonly required>
-    <input type="submit" id="registrar_asistencia" name="registrar_asistencia" value="Registrar asistencia" disabled>
-</form>
 <span id="cam-qr-result"></span>
 <!--<script src="../qr-scanner.umd.min.js"></script>-->
 <!--<script src="../qr-scanner.legacy.min.js"></script>-->
@@ -41,19 +38,23 @@
     const videoContainer = document.getElementById('video-container');
     const camList = document.getElementById('cam-list');
     const camQrResult = document.getElementById('cam-qr-result');
-    const clave = document.getElementById('clave');
-    const botonRegistrar = document.getElementById('registrar_asistencia');
     // cuando se escanea el codigo qr
     function setResult(label, result) {
-        // ponerle al input de clave el texto escaneado (la clave)
-        clave.value = result.data;
-        // se habilita el boton de submit (Registrar asistencia)
-        botonRegistrar.disabled = false;
-        //label.textContent = result.data;
-        // camQrResultTimestamp.textContent = new Date().toString();
-        //label.style.color = 'teal';
-        //clearTimeout(label.highlightTimeout);
-        //label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.path = '/escanear_qr/{{clave_grupo}}';
+        // se crea un elemento input para el formulario
+        const hiddenField = document.createElement('input');
+        // se oculta el input
+        hiddenField.type = 'hidden';
+        // con este nombre se va a obtener la clave del codigo qr, para procesarla en Python
+        hiddenField.name = 'clave';
+        // en el valor del input se pone la clave del codigo qr escaneada
+        hiddenField.value = result.data;
+        form.appendChild(hiddenField);
+        document.body.appendChild(form);
+        // Se lanza el POST
+        form.submit();
     }
 
     // ####### Web Cam Scanning #######
@@ -88,4 +89,7 @@
     });
 
 </script>
+{% else %}
+<h2>Solo los estudiantes pueden acceder a esta página</h2>
+{% endif %}
 {% endblock %}

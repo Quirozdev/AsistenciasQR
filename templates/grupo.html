@@ -28,10 +28,11 @@
         <h2>No se ha generado un código QR el día de hoy ({{fecha}})</h2>
         <a class="btn btn-primary" href="/generar_qr/{{grupo.clave}}" role="button">Generar código QR para hoy</a>
     {% endif %}
-    <a class="btn btn-primary" href="#" role="button">Ver lista de estudiantes</a>
+<a class="btn btn-primary" href="#" role="button">Generar reporte de asistencias</a>
 {% else %}
     <p>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</p>
     <a class="btn btn-primary" href="/escanear_qr/{{grupo.clave}}" role="button">Escanear Código QR</a>
 {% endif %}
+<a class="btn btn-primary" href="/lista_estudiantes/{{grupo.clave}}" role="button">Ver lista de estudiantes de este grupo</a>
 <a class="btn btn-primary" href="/asistencias/{{grupo.clave}}" role="button">Consultar asistencias</a>
 {% endblock %}

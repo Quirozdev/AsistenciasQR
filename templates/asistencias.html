@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{Asistencias}}{% endblock %}
+{% block title %}Asistencias{% endblock %}
 {% block head %}
 {{super()}}
 <style>
@@ -10,12 +10,23 @@
     </style>
 {% endblock %}
 {% block body %}
-<table>
+{% if fechas|length == 0 %}
+<h2>No se han generado códigos QR en este grupo, por lo que no hay registros de asistencias</h2>
+<a href="/grupo/{{clave_grupo}}">Volver</a>
+{% elif not asistencias %}
+<h2>No hay estudiantes que integren este grupo actualmente</h2>
+<a href="/grupo/{{clave_grupo}}">Volver</a>
+{% else %}
+<label for="filtrarPorNombre">Buscar por nombre</label>
+<input type="text" id="filtrarPorNombre" onkeyup="filtrarTablaPorNombre()" placeholder="Perez...">
+<label for="filtrarPorFecha">Buscar por fecha</label>
+<input type="text" id="filtrarPorFecha" onkeyup="filtrarTablaPorFecha()" placeholder="2022-10-22">
+<table id="tabla_asistencias">
     <thead>
       <tr>
         <th>Estudiante</th>
         {% for fecha in fechas %}
-            <th>{{fecha}}</th>
+            <th class="{{fecha}}">{{fecha}}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -24,7 +35,7 @@
               <td>{{datos_estudiantes[expediente]['apellido_paterno']}} {{datos_estudiantes[expediente]['apellido_materno']}} {{datos_estudiantes[expediente]['nombre']}}</td>
               {% for fecha in fechas %}
                 {% if usuario.tipo_usuario == "Docente" %}
-                  <td>
+                  <td class="{{fecha}}">
                     <select onchange="actualizarValor(this)" name="{{expediente}} {{fecha}}" id="{{expediente}} {{fecha}}">
                       {% if asistencia[fecha] == "Asistencia" %}
                       <option value="asistencia" selected>Asistencia</option>
@@ -42,7 +53,7 @@
                     </select>
                   </td>
                 {% else %}
-                  <td>{{asistencia[fecha]}}</td>
+                  <td class="{{fecha}}">{{asistencia[fecha]}}</td>
                 {% endif %}
               {% endfor %}
           </tr>
@@ -78,5 +89,78 @@
       console.log(select.value)
       */
   }
+
+
+  function filtrarTablaPorNombre() {
+    // funcion hecha con ayuda de https://www.w3schools.com/howto/howto_js_filter_table.asp
+    let input, filtro, table, tr, td, txtValue;
+    // se obtienen los elementos de HTML
+    input = document.getElementById("filtrarPorNombre");
+    filtro = input.value.toUpperCase();
+    tabla = document.getElementById("tabla_asistencias");
+    // se obtienen todos los registros/filas de la tabla
+    filaTabla = tabla.getElementsByTagName("tr");
+    // se cicla sobre las filas de las tablas y se esconden aquellas que no encajen con la busqueda
+    for (let i = 0; i < filaTabla.length; i++) {
+      // tr[i].getElementsByTagName("td")[0] representa la primera celda que se genera en cada fila, que en este caso es el nombre del estudiante
+      td = filaTabla[i].getElementsByTagName("td")[0];
+      // si existe la celda
+      if (td) {
+        // el valor de cada celda se obtiene del contexto de su texto o del texto que lleve dentro
+        valor_texto = td.textContent || td.innerText;
+        // indexOf regresa la posicion de la primera ocurrencia de un string dentro de otro string,
+        // si no se encuentra un string dentro de otro, entonces regresa -1
+        // el valor del texto tambien se convierte a mayusculas para que no se fije si son mayusuculas o minusculas
+        // si el valor de la celda (nombre completo del estudiante) tiene dentro el filtro de busqueda (al ser mayor a -1 quiere decir que regreso una posicion valida del string interior)
+        if (valor_texto.toUpperCase().indexOf(filtro) > -1) {
+          // se deja tal cual
+          filaTabla[i].style.display = "";
+        } else {
+          // pero si no, se oculta la fila
+          filaTabla[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+  function filtrarTablaPorFecha() {
+    let input, filtro, table, tr, td, txtValue;
+    // se obtienen los elementos de HTML
+    input = document.getElementById("filtrarPorFecha");
+    filtro = input.value.toUpperCase();
+    tabla = document.getElementById("tabla_asistencias");
+    // se obtienen todos las fechas/columnas de la tabla
+    columnaTabla = tabla.getElementsByTagName("th");
+    // se cicla sobre las fechas/columnas de las tablas y se esconden aquellas que no encajen con la busqueda
+    // se empieza desde i = 1, porque i = 0 es la columna de Estudiante, donde estan los nombres completos de los estudiantes
+    for (let i = 1; i < columnaTabla.length; i++) {
+      // se obtiene la fecha de cada columna
+      fecha = columnaTabla[i].textContent || columnaTabla[i].textContent;
+      // si existe la fecha
+      if (fecha) {
+        // indexOf regresa la posicion de la primera ocurrencia de un string dentro de otro string,
+        // si no se encuentra un string dentro de otro, entonces regresa -1
+        // el valor del texto tambien se convierte a mayusculas para que no se fije si son mayusuculas o minusculas
+        // si el valor de la celda (fecha) tiene dentro el filtro de busqueda (al ser mayor a -1 quiere decir que regreso una posicion valida del string interior)
+        if (fecha.toUpperCase().indexOf(filtro) > -1) {
+          // se obtiene toda la columna mediante el atributo class, que se genera dinamicamente en los <th></th> de fecha
+          // esta clase tambien se pone dinamicamente en las celdas (<td></td>) que pertenezcan a esa columna de fecha
+          columna = document.getElementsByClassName(fecha);
+          // se recorren todas las celdas de esa columna
+          for (let j = 0; j < columna.length; j++) {
+            // se deja tal cual
+            columna[j].style.display = "";
+          }
+        } else {
+          // pero si no, se oculta la columna entera
+          columna = document.getElementsByClassName(fecha);
+          for (let j = 0; j < columna.length; j++) {
+            columna[j].style.display = "none";
+          }
+        }
+      }
+    }
+  }
 </script>
+{% endif %}
 {% endblock %}

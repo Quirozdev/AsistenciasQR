@@ -4,6 +4,7 @@
 {{super()}}
 {% endblock %}
 {% block body %}
+{% if usuario.tipo_usuario == "Docente" %}
 <p>{{mensaje}}</p>
 <form action="" method="POST">
         <label for="clave">Clave del código QR</label>
@@ -16,4 +17,7 @@
         <input type="time" id="hora_retardo" name="hora_retardo" required>
         <input type="submit" name="generar" value="Generar">
 </form>
+{% else %}
+<h2>Solo los docentes pueden acceder a esta página</h2>
+{% endif %}
 {% endblock %}

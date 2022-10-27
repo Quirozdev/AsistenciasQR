@@ -11,8 +11,9 @@ codigos_qr_blueprint = Blueprint('codigos_qr_blueprint', __name__)
 @codigos_qr_blueprint.route("/generar_qr/<clave_grupo>", methods=['GET', 'POST'])
 def generar_qr(clave_grupo):
     mensaje = ""
+    usuario = Usuarios.query.get(session['usuario'])
     if request.method == 'GET':
-        return render_template('generarQR.html', mensaje=mensaje)
+        return render_template('generarQR.html', mensaje=mensaje, usuario=usuario)
     # POST
     else:
         # se obtienen los datos
@@ -49,8 +50,9 @@ def generar_qr(clave_grupo):
 @codigos_qr_blueprint.route("/escanear_qr/<clave_grupo>", methods=['GET', 'POST'])
 def escanear_qr(clave_grupo):
     mensaje = ""
+    usuario = Usuarios.query.get(session['usuario'])
     if request.method == 'GET':
-        return render_template('escanearQR.html', mensaje=mensaje)
+        return render_template('escanearQR.html', mensaje=mensaje, usuario=usuario)
     # POST
     else:
         # se obtiene la hora y la fecha a la que registro su asistencia el usuario

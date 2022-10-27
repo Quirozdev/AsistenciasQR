@@ -30,6 +30,8 @@
                     </form>
                 </div>
             </div>
+            <label for="buscarGrupoPorNombre">Buscar grupo por nombre</label>
+            <input type="text" id="buscarGrupoPorNombre" onkeyup="buscarGrupoPorNombre()" placeholder="Manejo de...">
             {% for grupo in grupos %}
                 <div class="card">
                     <div class="card-header">
@@ -57,6 +59,8 @@
                     </form>
                 </div>
             </div>
+            <label for="buscarGrupoPorNombre">Buscar grupo por nombre</label>
+            <input type="text" id="buscarGrupoPorNombre" onkeyup="buscarGrupoPorNombre()" placeholder="Manejo de...">
             {% for grupo in grupos %}
             <div class="card">
                 <div class="card-header">
@@ -70,10 +74,37 @@
             </div>
             {% endfor %}
         {% endif %}
-        <a href="/logout">Cerrar sesion</a>
+        <a href="/logout">Cerrar sesión</a>
+        <script>
+            function buscarGrupoPorNombre() {
+                let input, filtro;
+                // se obtienen los elementos de HTML
+                input = document.getElementById("buscarGrupoPorNombre");
+                filtro = input.value.toUpperCase();
+                // se obtienen todas las cards donde viene la informacion de los grupos
+                info_grupos = document.getElementsByClassName("card");
+                for (let i = 0; i < info_grupos.length; i++) {
+                    // de cada card se obtiene su primer div que tiene como clase card-header y es donde viene el nombre del grupo
+                    div_nombre_grupo = info_grupos[i].getElementsByClassName("card-header")[0];
+                    nombre_grupo = div_nombre_grupo.textContent || div_nombre_grupo.innerText;
+                    // indexOf regresa la posicion de la primera ocurrencia de un string dentro de otro string,
+                    // si no se encuentra un string dentro de otro, entonces regresa -1
+                    // el valor del texto tambien se convierte a mayusculas para que no se fije si son mayusuculas o minusculas
+                    // si el nombre del grupo en la card tiene dentro el filtro de busqueda (al ser mayor a -1 quiere decir que regreso una posicion valida del string interior)
+                    if (nombre_grupo.toUpperCase().indexOf(filtro) > -1) {
+                        // se deja tal cual
+                        info_grupos[i].style.display = "";
+                    } else {
+                        // pero si no, se oculta la card
+                        info_grupos[i].style.display = "none";
+                    }
+                }
+
+            }
+        </script>
     {% else %}
         <h1>Hola invitado!</h1>
-        <p>Registrate <a href="/registro">aqui</a></p>
-        <p>O Accede <a href="/login">aqui</a></p>
+        <p>Registrate <a href="/registro">aquí</a></p>
+        <p>O Accede <a href="/login">aquí</a></p>
     {% endif %}
 {% endblock %}

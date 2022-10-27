@@ -52,6 +52,18 @@ def asistencias(clave_grupo):
         print(datos_asistencia_lista)
         return redirect(f'/asistencias/{clave_grupo}')
 
+
+@asistencias_blueprint.route("/lista_estudiantes/<clave_grupo>", methods=['GET', 'POST'])
+def lista_estudiantes(clave_grupo):
+    if request.method == "GET":
+        usuario = Usuarios.query.get(session['usuario'])
+        integrantes_grupo_ordenados = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
+        return render_template('lista_estudiantes.html', integrantes_grupo=integrantes_grupo_ordenados, usuario=usuario, clave_grupo=clave_grupo)
+    # POST
+    else:
+        pass
+
+
 def obtener_datos_estudiantes() -> dict:
     """
     Regresa un diccionario que como llaves tiene los expedientes de los estudiantes y como valores algunos datos (nombre, apellido paterno y materno) del correspondiente estudiante.
@@ -65,7 +77,7 @@ def obtener_datos_estudiantes() -> dict:
 
 def obtener_fechas_asistencia(clave_grupo: str) -> list:
     """
-    Se regresan todas las fechas de un grupo de asistencias en el que se ha tomado asistencias, al haberse generado un código QR.
+    Se regresan todas las fechas en orden ascendente de un grupo de asistencias en el que se ha tomado asistencias, al haberse generado un código QR.
     """
     # se obtienen todas las codigos qr generados del grupo dado, se ordena la query por la fecha de manera ascendente.
     codigos_qr = CodigosQr.query.filter_by(clave_grupo=clave_grupo).order_by(CodigosQr.fecha.asc()).all()
@@ -79,6 +91,23 @@ def obtener_fechas_asistencia(clave_grupo: str) -> list:
         fecha_str = f'{codigo_qr.fecha}'
         fechas.append(fecha_str)
     return fechas
+
+
+def obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo: str) -> list:
+    datos_estudiantes = obtener_datos_estudiantes()
+    integrantes_grupo = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo).all()
+    lista_integrantes_grupo = []
+    # aquí se relaciona a los integrantes del grupo con sus datos de la tabla de Usuarios obtenidos anteriormente
+    for integrante in integrantes_grupo:
+        expediente_estudiante = integrante.expediente_estudiante
+        datos_integrante = datos_estudiantes[expediente_estudiante]
+        apellido_paterno_integrante = datos_integrante['apellido_paterno']
+        apellido_materno_integrante = datos_integrante['apellido_materno']
+        nombre_integrante = datos_integrante['nombre']
+        lista_integrantes_grupo.append({'expediente': expediente_estudiante, 'nombre_completo': f'{apellido_paterno_integrante} {apellido_materno_integrante} {nombre_integrante}'})
+    # aquí se ordena a los estudiantes de manera ascendente por el nombre completo
+    lista_integrantes_grupo_ordenada = sorted(lista_integrantes_grupo, key=lambda item: item.get('nombre_completo'))
+    return lista_integrantes_grupo_ordenada
 
 
 def obtener_asistencias(clave_grupo:str) -> dict:

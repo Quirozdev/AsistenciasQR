@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Lista de estudiantes{% endblock %}
+{% block head %}
+{{super()}}
+<style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+</style>
+{% endblock %}
+{% block body %}
+{% if not integrantes_grupo %}
+    <h2>No hay estudiantes que integren este grupo actualmente</h2>
+    <a href="/grupo/{{clave_grupo}}">Volver</a>
+{% else %}
+<label for="filtrarPorNombreOExpediente">Buscar por nombre o expediente</label>
+<input type="text" id="filtrarPorNombreOExpediente" onkeyup="filtrarTablaPorNombreOExpediente()" placeholder="Perez... ó 220...">
+<table id="tabla_integrantes_grupo">
+    <thead>
+        <tr>
+            <th>Expediente</th>
+            <th>Nombre Completo</th>
+            {% if usuario.tipo_usuario == 'Docente' %}
+                <th>Remover estudiante del grupo</th>
+            {% endif %}
+        </tr>
+    </thead>
+    {% for integrante in integrantes_grupo %}
+        <tr>
+            <td>{{integrante['expediente']}}</td>
+            <td>{{integrante['nombre_completo']}}</td>
+            {% if usuario.tipo_usuario == 'Docente' %}
+                <td><a href="#">Remover</a></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+<script>
+    function filtrarTablaPorNombreOExpediente() {
+        // funcion hecha con ayuda de https://www.w3schools.com/howto/howto_js_filter_table.asp
+        let input, filtro, table, tr, td, txtValue;
+        // se obtienen los elementos de HTML
+        input = document.getElementById("filtrarPorNombreOExpediente");
+        filtro = input.value.toUpperCase();
+        tabla = document.getElementById("tabla_integrantes_grupo");
+        // se obtienen todos los registros/filas de la tabla
+        filaTabla = tabla.getElementsByTagName("tr");
+        // se cicla sobre las filas de las tablas y se esconden aquellas que no encajen con la busqueda
+        for (let i = 0; i < filaTabla.length; i++) {
+        // tr[i].getElementsByTagName("td")[0] representa la primera celda que se genera en cada fila, que en este caso es el expediente del estudiante
+        // tr[i].getElementsByTagName("td")[1] representa la segunda celda que se genera en cada fila, que en este caso es el nombre completo del estudiante
+        expediente = filaTabla[i].getElementsByTagName("td")[0];
+        nombre = filaTabla[i].getElementsByTagName("td")[1];
+        // si existe la celda
+        if (expediente || nombre) {
+            // el valor de cada celda se obtiene del contexto de su texto o del texto que lleve dentro
+            valor_texto_expediente = expediente.textContent || expediente.innerText;
+            valor_texto_nombre = nombre.textContent || nombre.innerText;
+            // indexOf regresa la posicion de la primera ocurrencia de un string dentro de otro string,
+            // si no se encuentra un string dentro de otro, entonces regresa -1
+            // el valor del texto tambien se convierte a mayusculas para que no se fije si son mayusuculas o minusculas
+            // si el valor de la celda (nombre completo del estudiante) tiene dentro el filtro de busqueda (al ser mayor a -1 quiere decir que regreso una posicion valida del string interior)
+            // aqui se checa si el filtro coincide con un expediente o el nombre completo de un estudiante
+            if (valor_texto_expediente.toUpperCase().indexOf(filtro) > -1 || valor_texto_nombre.toUpperCase().indexOf(filtro) > -1) {
+            // se deja tal cual
+            filaTabla[i].style.display = "";
+            } else {
+            // pero si no, se oculta la fila
+            filaTabla[i].style.display = "none";
+            }
+        }
+        }
+    }
+</script>
+{% endif %}
+{% endblock %}

@@ -90,6 +90,17 @@ def index():
                 # si no, se envia el mensaje y se vuelve a renderizar el index
                 return render_template('index.html', usuario=usuario, grupos=grupos, mensaje=mensaje)
 
+
+# para tener una página de error 404 personalizada
+@app.errorhandler(404)
+def pagina_no_encontrada(e):
+    return render_template('404.html'), 404
+
+
+# para tener una página de error 500 personalizada
+@app.errorhandler(500)
+def pagina_no_encontrada(e):
+    return render_template('500.html'), 500
     
 
 if __name__ == "__main__":
