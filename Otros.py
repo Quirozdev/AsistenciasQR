@@ -1,4 +1,12 @@
 import datetime
+from pytz import timezone
+
+
+def obtener_fecha_actual() -> datetime.datetime:
+    fecha_actual = datetime.datetime.now(timezone('UTC'))
+    fecha_zona_horaria_correspondiete = fecha_actual.astimezone(timezone('America/Hermosillo'))
+    return fecha_zona_horaria_correspondiete
+
 
 
 def convertir_str_a_hora(hora: str) -> datetime.datetime.time:

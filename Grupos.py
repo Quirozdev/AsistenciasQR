@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session
 from Modelos import CodigosQr, db, IntegrantesGrupos, Grupos, Usuarios, Asistencias
-import datetime
+
+from Otros import obtener_fecha_actual
 
 
 grupos_blueprint = Blueprint('grupos_blueprint', __name__)
@@ -10,7 +11,7 @@ grupos_blueprint = Blueprint('grupos_blueprint', __name__)
 def grupos(clave_grupo):
     usuario = Usuarios.query.get(session['usuario'])
     grupo = Grupos.query.get(clave_grupo)
-    fecha_actual = datetime.datetime.now().date()
+    fecha_actual = obtener_fecha_actual().date()
     # se obtiene el codigo qr que se haya generado el dia actual en ese grupo, si es que se ha generado alguno
     codigo_qr_hoy = CodigosQr.query.filter_by(fecha=fecha_actual, clave_grupo=clave_grupo).first()
     # esto es para ver el estado de asistencia del estudiante
