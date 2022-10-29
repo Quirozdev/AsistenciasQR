@@ -3,6 +3,9 @@ from pytz import timezone
 
 
 def obtener_fecha_actual() -> datetime.datetime:
+    """
+    Regresa la fecha actual con la zona horaria de Hermosillo.
+    """
     fecha_actual = datetime.datetime.now(timezone('UTC'))
     fecha_zona_horaria_correspondiete = fecha_actual.astimezone(timezone('America/Hermosillo'))
     return fecha_zona_horaria_correspondiete
