@@ -94,6 +94,9 @@ def obtener_fechas_asistencia(clave_grupo: str) -> list:
 
 
 def obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo: str) -> list:
+    """
+    Regresa un listado ordenado (por apellido paterno) de estudiantes que integran a un grupo dado.
+    """
     datos_estudiantes = obtener_datos_estudiantes()
     integrantes_grupo = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo).all()
     lista_integrantes_grupo = []
@@ -106,7 +109,12 @@ def obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo: str) -> list:
         nombre_integrante = datos_integrante['nombre']
         lista_integrantes_grupo.append({'expediente': expediente_estudiante, 'nombre_completo': f'{apellido_paterno_integrante} {apellido_materno_integrante} {nombre_integrante}'})
     # aquí se ordena a los estudiantes de manera ascendente por el nombre completo
-    lista_integrantes_grupo_ordenada = sorted(lista_integrantes_grupo, key=lambda item: item.get('nombre_completo'))
+    # se le aplica el metodo de upper a cada nombre completo para pasar todos los caracteres a mayusculas, esto es porque por ejemplo
+    # si un usuario se apellida Reyes y otro Juarez, si los ordena correctamente, pero si el usuario puso su
+    # apellido paterno en minusculas, ejemplo Reyes y juarez, pone primero al usuario Reyes y luego a juarez
+    # esto puede deberse a que al compararse los strings y ver cual es mayor, el primer caracter en mayuscula y minuscula
+    # sea mayor
+    lista_integrantes_grupo_ordenada = sorted(lista_integrantes_grupo, key=lambda item: item.get('nombre_completo').upper())
     return lista_integrantes_grupo_ordenada
 
 
@@ -139,22 +147,9 @@ def obtener_asistencias(clave_grupo:str) -> dict:
     # se obtienen a todos los estudiantes, esto para relacionar sus datos con los integrantes/estudiantes pertenecientes al grupo
     # se hace esta sola query y luego se relaciona mediante un ciclo, para no estar realizando una query dentro del ciclo por cada usuario
     # lo que podria ser pesado para la base de datos
-    estudiantes = Usuarios.query.filter_by(tipo_usuario='Estudiante').all()
-    diccionario_estudiantes = {}
-    for estudiante in estudiantes:
-        # el diccionario tiene como llave el expediente de los estudiantes y como valor el nombre completo de estos mismos empezando por el apellido paterno.
-        # Esto es así para poder ordenar a los estudiantes por su nombre en la tabla que se generará en asistencias.html
-        diccionario_estudiantes[estudiante.expediente] = f'{estudiante.apellido_paterno} {estudiante.apellido_materno} {estudiante.nombre}'
     # tambien se obtienen a los estudiantes que se hayan unido a ese grupo, esto va  a servir para ver que estudiantes no registraron asistencia un cierto dia y asignarles el estado correspondiente (falta), sin tener que insertar en la bd, 
     # de modo que se ahorra espacio en la bd
-    integrantes_grupo = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo).all()
-    lista_integrantes_grupo = []
-    # aquí se relaciona a los integrantes del grupo con sus datos de la tabla de Usuarios obtenidos anteriormente
-    for integrante in integrantes_grupo:
-        expediente_estudiante = integrante.expediente_estudiante
-        lista_integrantes_grupo.append({'expediente': expediente_estudiante, 'nombre_completo': diccionario_estudiantes[expediente_estudiante]})
-    # aquí se ordena a los estudiantes de manera ascendente por el nombre completo
-    lista_integrantes_grupo_ordenada = sorted(lista_integrantes_grupo, key=lambda item: item.get('nombre_completo'))
+    lista_integrantes_grupo_ordenada = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
     # se obtienen las fechas registradas, donde se haya generado un código QR
     fechas = obtener_fechas_asistencia(clave_grupo)
     # este diccionario va a complementar los registros que el diccionario_asistencias_incompleto no tenía, por que 
