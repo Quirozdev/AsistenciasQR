@@ -2,17 +2,143 @@
 {% block title %}Login{% endblock %}
 {% block head %}
 {{super()}}
+<head>
+    <style>
+        body, html{
+            height: 100%;
+        }
+
+        body{
+            /*background-color: rgb(219, 219, 219);*/
+            background-color: #171717;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .caja{
+            padding: 20px;
+            background-color: #fff;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #ccc;
+            border-radius: 8px;
+            border-top: solid 0px;
+            box-shadow: 8px 8px 10px rgb(0, 255, 136);
+        }
+
+        .titulo{
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            text-align: center;
+            border-bottom: 1px solid rgb(197, 197, 197);
+        }
+        p {
+            color: red;
+        }
+
+        input[type=text] {
+            padding: 12px 20px;
+            margin: 20px auto;
+            display: block;
+            border: 2px solid rgb(0, 255, 136);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            text-align: center;
+            outline: none;
+            transition: 0.25s;
+        }
+
+        input[type=text]:focus {
+            border: 3px solid black;
+        }
+
+        input[type=password]:focus {
+            border: 3px solid black;
+        }
+
+        input[type=password] {
+            padding: 12px 20px;
+            margin: 20px auto;
+            display: block;
+            border: 2px solid rgb(0, 255, 136);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            text-align: center;
+            outline: none;
+            transition: 0.25s;
+        }
+
+        .boton{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .boton1{
+            border: none;
+            outline: none;
+            height: 40px;
+            width: 210px;
+            background: rgb(0, 255, 136);
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .boton1:hover {
+            cursor: pointer;
+            box-shadow: 0 0 5px rgb(0, 255, 136),
+                        0 0 20px rgb(48, 224, 142);
+        }
+
+        .nocontraseña {
+            text-align: center;
+            padding-top: 25px;
+            padding-bottom: 20px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        .registro {
+            text-align: center;
+            border-top: 1px solid rgb(197, 197, 197);
+            padding-top: 20px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
 {% endblock %}
-{% block body %}    
-    <h1>Acceder</h1>
-    <p>{{mensaje}}</p>
-    <form action="" method="POST">
-        <label for="expediente">Expediente</label>
-        <input type="text" id="expediente" name="expediente" maxlength="54" required>
-        <label for="contrasenia">Contraseña</label>
-        <input type="password" id="contrasenia" name="contrasenia" maxlength="108" required>
-        <input type="submit" name="login" value="Acceder">
+{% block body %}
+    <!--<h1>Acceder</h1>-->
+    <!--<p>{{mensaje}}</p>-->
+    <!--<form action="" method="POST">-->
+    <!--    <label for="expediente">Expediente</label>-->
+    <!--    <input type="text" id="expediente" name="expediente" maxlength="54">-->
+    <!--    <label for="contrasenia">Contraseña</label>-->
+    <!--    <input type="password" id="contrasenia" name="contrasenia" maxlength="108">-->
+    <!--    <input type="submit" name="login" value="Acceder">-->
+    <!--</form>-->
+    <!--<a href="/registro">Registrarse</a>-->
+    <!--<a href="/recuperar_contrasenia">Olvidé mi contraseña</a>-->
+
+    <form class="caja" action="" method="POST">
+        <div class="titulo">
+            <h1>Inicio de Sesión</h1>
+            <p>{{mensaje}}</p>
+        </div>
+        <input type="text" id="expediente" name="expediente" placeholder="Expediente" maxlength="54">
+        <input type="password" id="contrasenia" name="contrasenia" placeholder="Contraseña" maxlength="108">
+        <div class="boton">
+            <button class="boton1" type="submit" name="login" value="Acceder">Iniciar</button>
+        </div>
+        <div class="nocontraseña">
+            ¿Se te olvidó la <a href="/recuperar_contrasenia">contraseña</a>?
+        </div>
+        <div class="registro">
+            Crear una cuenta <a href="/registro">Registrarse</a>
+        </div>
     </form>
-    <a href="/registro">Registrarse</a>
-    <a href="/recuperar_contrasenia">Olvidé mi contraseña</a>
+
 {% endblock %}

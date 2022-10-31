@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{grupo.nombre}}{% endblock %}
 {% block head %}
+<style>
+    h2 {
+        color: red;
+    }
+</style>
 {{super()}}
 {% endblock %}
 {% block body %}
@@ -24,15 +29,63 @@
     ;
     generarCodigoQR();
     </script>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
     {% else %}
         <h2>No se ha generado un código QR el día de hoy ({{fecha}})</h2>
-        <a class="btn btn-primary" href="/generar_qr/{{grupo.clave}}" role="button">Generar código QR para hoy</a>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+            <div class="card h-100">
+                <img src="/static/img/generaqr.webp" class="card-img-top" alt="Imagen" width="150" height="300">
+                <div class="card-body">
+                    <h5 class="card-title">Generar código QR para hoy</h5>
+                    <p class="card-text">Aquí el docente podrá generar los códigos QR para tomar asistencia.</p>
+                    <a href="/generar_qr/{{grupo.clave}}" class="btn btn-primary">Generar código QR</a>
+                </div>
+            </div>
+        </div>
     {% endif %}
-<a class="btn btn-primary" href="#" role="button">Generar reporte de asistencias</a>
+    <div class="col">
+            <div class="card h-100">
+                <img src="/static/img/reporteasistencias.webp" class="card-img-top" alt="Imagen" width="150" height="300">
+                <div class="card-body">
+                    <h5 class="card-title">Generar reporte de asistencias</h5>
+                    <p class="card-text">Aquí el docente podrá generar un reporte de asistencias.</p>
+                    <a href="#" class="btn btn-primary">Generar reporte de asistencias</a>
+                </div>
+            </div>
+        </div>
 {% else %}
     <p>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</p>
-    <a class="btn btn-primary" href="/escanear_qr/{{grupo.clave}}" role="button">Escanear Código QR</a>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col">
+    <div class="card">
+      <img src="/static/img/qr.png" class="card-img-top" alt="QR" width="150" height="300">
+      <div class="card-body">
+        <h5 class="card-title">Escanea el código QR</h5>
+        <p class="card-text">Aquí podremos escanear el código QR generado para que marque la asistencia del día.</p>
+        <a href="/escanear_qr/{{grupo.clave}}" class="btn btn-primary">Escanear código QR</a>
+      </div>
+    </div>
+  </div>
 {% endif %}
-<a class="btn btn-primary" href="/lista_estudiantes/{{grupo.clave}}" role="button">Ver lista de estudiantes de este grupo</a>
-<a class="btn btn-primary" href="/asistencias/{{grupo.clave}}" role="button">Consultar asistencias</a>
+<div class="col">
+    <div class="card h-100">
+      <img src="/static/img/lista.png" class="card-img-top" alt="Imagen" width="150" height="300">
+      <div class="card-body">
+        <h5 class="card-title">Lista de estudiantes de este grupo</h5>
+        <p class="card-text">Aquí podremos encontrar a los estudiantes que se encuentran ingresados en el grupo.</p>
+        <a href="/lista_estudiantes/{{grupo.clave}}" class="btn btn-primary">Ver lista de estudiantes</a>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100">
+      <img src="/static/img/consulta.png" class="card-img-top" alt="Consulta" width="150" height="300">
+      <div class="card-body">
+        <h5 class="card-title">Consulta de asistencias</h5>
+        <p class="card-text">Aquí podremos ver las asistencias de los alumnos del día.</p>
+        <a href="/asistencias/{{grupo.clave}}" class="btn btn-primary">Consultar asistencias</a>
+      </div>
+    </div>
+  </div>
 {% endblock %}

@@ -2,8 +2,161 @@
 {% block title %}AsistenciasQR{% endblock %}
 {% block head %}
 {{super()}}
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+        }
+
+        body{
+            background-color: #171717;
+        }
+        .cajanav {
+            height: 60px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            background-color: white;
+            box-shadow: 0 0 10px rgb(175, 228, 202),
+                        0 0 15px rgb(48, 224, 142);
+        }
+        .btnIS {
+            margin-right: 10px;
+            border-color: rgb(0, 255, 136);
+            border-style: solid;
+            outline: none;
+            height: 40px;
+            width: 160px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btnIS:hover {
+            background-color: rgb(0, 255, 136);
+            box-shadow: 0 0 5px rgb(175, 228, 202),
+                        0 0 20px rgb(48, 224, 142);
+        }
+        .btnR {
+            margin-right: 10px;
+            border-color: black;
+            border-style: solid;
+            outline: none;
+            height: 30px;
+            width: 130px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btnR:hover {
+            background-color: #171717;
+            color: rgb(48, 224, 142);
+            box-shadow: 0 0 5px rgb(48, 224, 142),
+                        0 0 20px rgb(0, 255, 136);
+        }
+        .header {
+            font-family: 'Noto Sans', sans-serif;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        .contenido {
+            margin-top: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .contenedor img{
+            width: 100%;
+        }
+        .contenidoImagen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 20px;
+            background-color: #171717;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #ccc;
+            border-radius: 8px;
+            border-top: solid 0px;
+            box-shadow: 0 0 0 rgb(48, 224, 142);
+        }
+        .contenidoImagen h2 {
+            border-bottom: 1px solid rgb(48, 224, 142);
+            padding: 20px;
+        }
+        .contenidoImagen button {
+            margin: 20px;
+        }
+        .contenidoTexto {
+            text-align: center;
+        }
+        .noLista {
+            margin-top: 60px;
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .noLista h1 {
+            margin-bottom: 25px;
+        }
+        .noLista h3 {
+            padding: 20px;
+            margin-bottom: 70px;
+            border-bottom: 2px solid rgb(48,224, 142);
+        }
+        .row {
+            margin: 40px;
+            padding: 20px;
+            background-color: white;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #ccc;
+            border-radius: 8px;
+            border-top: solid 0px;
+            box-shadow: 0 0 5px rgb(48, 224, 142),
+                        0 0 20px rgb(0, 255, 136);
+            color: black;
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .col-4 {
+            padding-left: 50px;
+            width: 420px;
+        }
+        .lista {
+            background-color: white;
+            color: Black;
+            height: 42px;
+            padding: 8px 16px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid gray;
+        }
+        .lista:hover {
+            color: black;
+            background-color: rgb(219, 219, 219);
+        }
+        .lista:focus {
+            background-color: rgb(48, 224, 142);
+            border: none;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-rows: 100px 100px;
+            grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+            grid-gap: 8px;
+            color: white;
+        }
+        .grid-item {
+            border: 5px solid white;
+            padding: 5px;
+            margin: 3px;
+        }
+    </style>
+</head>
 {% endblock %}
-{% block body %}    
+{% block body %}
     {% if usuario.tipo_usuario != "Invitado" %}
         <h1>Hola {{usuario.nombre}} {{usuario.apellido_paterno}} {{usuario.apellido_materno}}!</h1>
         <p>{{mensaje}}</p>
@@ -74,7 +227,7 @@
             </div>
             {% endfor %}
         {% endif %}
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/logout">Cerrar sesion</a>
         <script>
             function buscarGrupoPorNombre() {
                 let input, filtro;
@@ -103,8 +256,52 @@
             }
         </script>
     {% else %}
-        <h1>Hola invitado!</h1>
-        <p>Registrate <a href="/registro">aquí</a></p>
-        <p>O Accede <a href="/login">aquí</a></p>
+        <!-- <h1>Hola invitado!</h1>
+        <p>Registrate <a href="/registro">aqui</a></p>
+        <p>O Accede <a href="/login">aqui</a></p> -->
+        <nav class="cajanav">
+          <form class="container-fluid justify-content-start">
+            <button class="btnIS" type="button" onclick="location.href='/login'">Iniciar Sesión</button>
+            <button class="btnR" type="button" onclick="location.href='/registro'">Registrarse</button>
+          </form>
+        </nav>
+        <div class="header">
+            <h1>Bienvenido Invitado</h1>
+            <h3>Inicia Sesión o registrate para empezar!</h3>
+        </div>
+        <div class="contenido">
+            <div class="contenedor">
+                <img src="https://cdn.pixabay.com/photo/2015/10/29/14/38/web-1012467_960_720.jpg" >
+                <div class="contenidoImagen">
+                    <h2>Crea una cuenta para usar las funciones que traemos!</h2>
+                    <button class="btnIS" type="button" onclick="location.href='/login'">Iniciar Sesión</button>
+                </div>
+                <div class="contenidoTexto">
+                    <div class="noLista">
+                        <h1>Objetivos</h1>
+                        <h3>Nuestro objetivo es poder ayudar a los maestros y a los alumnos a tener una herramienta que facilite el pase de asistencia para sus clases.</h3>
+                        <h1>Funciones</h1>
+                    </div>
+                    <div class="row">
+                      <div class="col-4">
+                        <div class="list-group" id="list-tab" role="tablist">
+                          <a class="lista" id="list-home-list" data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home" style="border-radius: 5px 5px 0 0;">Código QR</a>
+                          <a class="lista" id="list-profile-list" data-bs-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile">Asistencias</a>
+                          <a class="lista" id="list-messages-list" data-bs-toggle="list" href="#list-messages" role="tab" aria-controls="list-messages">Organizador/Creador de Grupos</a>
+                          <a class="lista" id="list-settings-list" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings" style="border-radius: 0 0 5px 5px;">Acerca de Nosotros</a>
+                        </div>
+                      </div>
+                      <div class="col-8">
+                        <div class="tab-content" id="nav-tabContent">
+                          <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">Tenemos una herramienta que ayudará a los maestros para poder tomar asistencia en sus grupos de clase mediante un código QR que ellos pueden generar. Los alumnos serán capaces de escanear el código QR y de esa manera se les pondrá asistencia a la hora de clase.</div>
+                          <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">Las asistencias de esta página web es de gran ayuda para los docentes de las escuelas, facilita el trabajo de poder tener organizado las asistencias de los alumnos de sus grupos de clase, los maestros tienen el privilegio de tener un reporte de asistencias por cada grupo que ellos esten trabajando.</div>
+                          <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">Al ser maestro podras crear grupos para poder agregar a sus alumnos de clase, en estos grupos podran generar los codigos QR para pasar lista y podranb tener los reportes de asistencia de cada grupo que tengan. Al ser alumno podras ver los grupos que estás únido y podras escanear los codigos QR que su profesor a generado.</div>
+                          <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">Nosotros somos un grupo de alumnos que crearon esta pagina web con la intención de solucionar algun problema o tener una herramienta que facilite el trabajo de alguien. Somos estudiantes de la Universidad de Sonora, de la carrera de Ingeniería en Sistemas de Información y éste es un proyecto de la materia Ingeniera en Software.</div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}

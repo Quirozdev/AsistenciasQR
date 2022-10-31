@@ -4,6 +4,20 @@
 {{super()}}
 {% endblock %}
 {% block body %}
+
+<div class="card text-center">
+  <div class="card-header">
 <h1>Página no encontrada en AsistenciasQR</h1>
-<a href="/">Regresar a la página principal</a>
+  </div>
+  <div class="card-body">
+      <div align="center"><img src="/static/img/ops.png" width="100" height="100" ></div>
+    <h5 class="card-title">Ha ocurrido un error, esta página no existe</h5>
+    <p class="card-text">Favor de regresar a la pagina inicial</p>
+    <a href="/" class="btn btn-warning">Regresar a la página principal</a>
+  </div>
+  <div class="card-footer text-muted">
+      ERROR
+  </div>
+</div>
+</div>
 {% endblock %}
