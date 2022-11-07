@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Reporte de asistencias{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}
+{% if usuario.tipo_usuario == "Docente" %}
+<h1>Generar reporte de asistencias</h1>
+
+<p id="mensaje"></p>
+<label for="fecha_desde">Desde:</label>
+<input list="fechas_desde" value="{{fechas[0]}}" name="fecha_desde" id="fecha_desde">
+<datalist id="fechas_desde">
+    {% for fecha in fechas %}
+        <option value="{{fecha}}">{{fecha}}</option>
+    {% endfor %}
+</datalist>
+
+<label for="fecha_hasta">Hasta:</label>
+<input list="fechas_hasta" value="{{fechas[-1]}}" name="fecha_hasta" id="fecha_hasta">
+<datalist id="fechas_hasta">
+    {% for fecha in fechas %}
+        <option value="{{fecha}}">{{fecha}}</option>
+    {% endfor %}
+</datalist>
+
+<label for="estudiante">Estudiante:</label>
+<input list="estudiantes" value="Todos" name="estudiante" id="estudiante">
+<datalist id="estudiantes">
+    <option value="Todos" id="Todos" data-nombre="Todos">Todos</option>
+    {% for estudiante in estudiantes %}
+        <option value="{{estudiante['expediente']}}" data-nombre="{{estudiante['nombre_completo']}}" id="{{estudiante['expediente']}}">{{estudiante['nombre_completo']}}</option>
+    {% endfor %}
+</datalist>
+
+<button id="boton_generar_reporte">Generar reporte</button>
+
+<h2 id="parametros_busqueda"></h2>
+
+<div id="">
+    <canvas id="grafico_barras"></canvas>
+</div>
+
+<div>
+    <canvas id="grafico_pastel"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript">
+    $('#boton_generar_reporte').click(function (){
+        const fechaDesde = document.getElementById('fecha_desde').value;
+        const fechaHasta = document.getElementById('fecha_hasta').value;
+        const estudiante = document.getElementById('estudiante').value;
+        $.ajax({
+            type: "GET",
+            url: '/datos_reporte_asistencias/{{clave_grupo}}/' + estudiante,
+            dataType: 'json',
+            success: function(data) {
+                // console.log(data);
+                const parrafo_mensaje = document.getElementById('mensaje');
+                if (Object.keys(data).length == 0) {
+                    parrafo_mensaje.innerText = `No se encontró información de asistencias entre las fechas ${fechaDesde} y ${fechaHasta} para el estudiante "${estudiante}"`;
+                    borrarGraficoBarras();
+                    borrarGraficoPastel();
+                    return;
+                }
+                const datosFiltrados = filtrarDatosPorFechas(data, fechaDesde, fechaHasta);
+                if (datosFiltrados == -1) {
+                    parrafo_mensaje.innerText = 'La fecha "desde" debe de ser mayor a la de "hasta" y ambas deben de ser opciones disponibles en la lista de opciones';
+                } else {
+                    parrafo_mensaje.innerText = "";
+                    generarGraficoBarras(datosFiltrados);
+                    generarGraficoPastel(datosFiltrados);
+                }
+            },
+            error: function(e) {
+                console.log(e.responseText);
+                parrafo_mensaje.innerText = "Error";
+            }
+        });
+    });
+
+    function borrarGraficoBarras() {
+        let chartStatus = Chart.getChart("grafico_barras");
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
+    }
+
+    function borrarGraficoPastel() {
+        let chartStatus = Chart.getChart("grafico_pastel");
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
+    }
+
+    function filtrarDatosPorFechas(datos, fechaDesde, fechaHasta) {
+        const datos_filtrados = {};
+        const fechas = Object.keys(datos);
+        const desde = fechas.indexOf(fechaDesde);
+        const hasta = fechas.indexOf(fechaHasta);
+        // si la fecha desde es mayor a la fecha hasta o si no se encontro la fecha desde o hasta, debido a que el usuario ingreso una fecha incorrecta manualmente
+        if (desde > hasta || (desde == -1 || hasta == -1)) {
+            return -1;
+        }
+        for (let i = desde; i <= hasta; i++) {
+            datos_filtrados[fechas[i]] = datos[fechas[i]];
+        }
+        return datos_filtrados;
+    }
+
+    function generarGraficoBarras(datos) {
+        const fechaDesde = document.getElementById('fecha_desde').value;
+        const fechaHasta = document.getElementById('fecha_hasta').value;
+        // se obtiene el nombre del estudiante en lugar de su expediente
+        const estudiante = document.getElementById('estudiante').value;
+        const nombre_completo = document.getElementById("estudiantes").options.namedItem(estudiante).getAttribute('data-nombre');
+        const labels = Object.keys(datos);
+        const asistencias = [];
+        const retardos = [];
+        const faltas = [];
+        for (const fecha in datos) {
+            asistencias.push(datos[fecha].asistencias);
+            retardos.push(datos[fecha].retardos);
+            faltas.push(datos[fecha].faltas);
+        }
+        const data = {
+        labels: labels,
+        datasets: [
+        {
+            label: 'Asistencias',
+            data: asistencias,
+            borderColor: 'rgb(0,4,0)',
+            backgroundColor: 'rgba(75,195,80,0.9)'
+        },
+        {
+            label: 'Retardos',
+            data: retardos,
+            borderColor: 'rgb(0,4,0)',
+            backgroundColor: 'RGBA(255,232,0,0.9)'
+        },
+        {
+            label: 'Faltas',
+            data: faltas,
+            borderColor: 'rgb(0,4,0)',
+            backgroundColor: 'rgba(255,21,19,0.9)'
+        }
+        ]
+        };
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        ticks: {
+                            stepSize: 1,
+                            beginAtZero: true,
+                        },
+                    },
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Estados de asistencias desde ${fechaDesde} hasta ${fechaHasta} para "${nombre_completo}"`
+                    }
+                }
+            }
+        };
+        borrarGraficoBarras();
+        const context = document.getElementById("grafico_barras").getContext("2d");
+        const graficoBarras = new Chart(context, config);
+    }
+
+    function generarGraficoPastel(datos) {
+        const fechaDesde = document.getElementById('fecha_desde').value;
+        const fechaHasta = document.getElementById('fecha_hasta').value;
+        // se obtiene el nombre del estudiante en lugar de su expediente
+        const estudiante = document.getElementById('estudiante').value;
+        const nombre_completo = document.getElementById("estudiantes").options.namedItem(estudiante).getAttribute('data-nombre');
+        const labels = ['Asistencias', 'Retardos', 'Faltas'];
+        const asistencias = [];
+        const retardos = [];
+        const faltas = [];
+        const contador_estados = {asistencias: 0, retardos: 0, faltas: 0};
+        for (const fecha in datos) {
+            contador_estados.asistencias = contador_estados.asistencias + datos[fecha].asistencias;
+            contador_estados.retardos = contador_estados.retardos + datos[fecha].retardos;
+            contador_estados.faltas = contador_estados.faltas + datos[fecha].faltas;
+        }
+        const data = {
+        labels: labels,
+        datasets: [
+        {
+            label: 'Dataset',
+            data: [contador_estados.asistencias, contador_estados.retardos, contador_estados.faltas],
+            backgroundColor: [
+                'rgb(75,195,80)',
+                'rgb(255,232,0)',
+                'rgb(255,21,19)'
+        ]
+        }
+        ]
+        };
+        const config = {
+            type: 'pie',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Estados de asistencias desde ${fechaDesde} hasta ${fechaHasta} para "${nombre_completo}"`
+                    }
+                }
+            }
+        };
+        borrarGraficoPastel();
+        const context2 = document.getElementById("grafico_pastel").getContext("2d");
+        const graficoPastel = new Chart(context2, config);
+    }
+</script>
+{% else %}
+<h1>No puedes acceder a esta página, se requiere ser Docente</h1>
+<a href="/grupo/{{clave_grupo}}">Volver</a>
+{% endif %}
+{% endblock %}

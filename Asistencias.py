@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, redirect
+from flask import Blueprint, render_template, request, session, redirect, jsonify
 from Modelos import CodigosQr, IntegrantesGrupos, Usuarios, db, Asistencias
 
 
@@ -62,6 +62,15 @@ def lista_estudiantes(clave_grupo):
     # POST
     else:
         pass
+
+
+@asistencias_blueprint.route("/generar_reporte_asistencias/<clave_grupo>", methods=['GET', 'POST'])
+def generar_reporte_asistencias(clave_grupo):
+    if request.method == "GET":
+        fechas = obtener_fechas_asistencia(clave_grupo)
+        estudiantes = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
+        usuario = Usuarios.query.get(session['usuario'])
+        return render_template('reporte_asistencias.html', clave_grupo=clave_grupo, fechas=fechas, estudiantes=estudiantes, usuario=usuario)
 
 
 def obtener_datos_estudiantes() -> dict:
@@ -190,3 +199,88 @@ def obtener_estado_asistencia(hora_registro, hora_asistencia, hora_retardo) -> s
     else:
         estado_asistencia = "Asistencia"
     return estado_asistencia
+
+
+def obtener_cantidad_estudiantes_grupo(clave_grupo: str) -> int:
+    cantidad_estudiantes = 0
+    integrantes = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo).all()
+    if integrantes is not None:
+        cantidad_estudiantes = len(integrantes)
+    return cantidad_estudiantes
+
+
+@asistencias_blueprint.route("/datos_reporte_asistencias/<clave_grupo>/<expediente_estudiante>")
+def datos_reporte_asistencias(clave_grupo, expediente_estudiante):
+    '''
+    En esta ruta se va a generar un JSON con la siguiente forma:
+    {
+        '2022-11-06': {
+            'asistencias': 32,
+            'retardos': 4,
+            'faltas': 4
+        },
+        '2022-11-07': {
+            'asistencias': 34,
+            'retardos': 3,
+            'faltas': 3
+        },...
+    }
+    Este diccionario/objeto va a ser utilizado para generar las graficas en el reporte de asistencias
+    '''
+    # se obtienen todas las fechas ordenadas en las que se haya generado un codigo qr para tomar asistencia
+    fechas = obtener_fechas_asistencia(clave_grupo)
+    # se obtiene la cantidad de estudiantes en un grupo (este dato va  a servir para determinar las faltas que no se registran en la base de datos al no escanearse el codigo qr en una fecha dada)
+    cantidad_estudiantes = obtener_cantidad_estudiantes_grupo(clave_grupo)
+    # con una compresion de diccionarios, se genera la estructura planteada con todos los valores inicializados en 0.
+    # de igual modo las fechas se toman de las fechas registradas en la generacion de los codigos qr, de modo que si
+    # en algun dia, ningun estudiante escaneo el codigo qr, de modo que en asistencias no haya ningun registro en esa fecha
+    # no va a haber problema, por que esa fecha va a ser obtenida de la generacion del codigo qr y se les va a asignar falta a todos por defecto
+    datos_reporte_asistencias = {fecha: {'asistencias': 0, 'retardos': 0, 'faltas': 0} for fecha in fechas}
+    # en la base de datos los estados de asistencia se guardan como 'Asistencia', 'Retardo' y 'Falta', 
+    # por lo que aqui se relacionan con su sustantivo en plural, para que el JSON quede mas entendible
+    sustantivo_plural = {'Asistencia': 'asistencias', 'Retardo': 'retardos', 'Falta': 'faltas'}
+    # se tiene que checar si se busca generar un reporte de asistencias para todos los integrantes del grupo
+    # o si es para un estudiante en especifico
+    if expediente_estudiante == 'Todos':
+        # si es para todos, no se filtra por el expediente del estudiante
+        # los registros de asistencias se ordenan por fecha ascendente para asegurarnos de que sigan ordenadas
+        datos_asistencias = Asistencias.query.filter_by(clave_grupo=clave_grupo).order_by(Asistencias.fecha.asc()).all()
+    else:
+        # se valida si el usuario no es integrante en el grupo
+        integrante = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo, expediente_estudiante=expediente_estudiante).first()
+        if integrante is None:
+            return jsonify({})
+        # de otro modo se filtra por el expediente del estudiante ademas de la clave del grupo en concreto
+        datos_asistencias = Asistencias.query.filter_by(clave_grupo=clave_grupo, expediente_estudiante=expediente_estudiante).order_by(Asistencias.fecha.asc()).all()
+    # se recorre cada registro en la tabla Asistencias filtrada
+    for registro_asistencia in datos_asistencias:
+        # se obtiene el campo de fecha convertido a string
+        fecha = str(registro_asistencia.fecha)
+        # se obtiene el estado de asistencia equivalente a su sustantivo plural
+        # si el estado de asistencia obtenido en el registro es 'Retardo', entonces:
+        # estado_asistencia = sustantivo_plural['Retardo'] = 'retardos'
+        estado_asistencia = sustantivo_plural[registro_asistencia.estado]
+        # se incrementa en uno el estado de asistencia que se haya obtenido
+        datos_reporte_asistencias[fecha][estado_asistencia] = datos_reporte_asistencias[fecha][estado_asistencia] + 1
+    # ahora como en la base de datos no se guardan aquellos registros de faltas cuando los estudiantes no escanearon el codigo qr en todo ese dia,
+    # se tienen que tomar en cuenta esas faltas "no registradas", por lo que se recorre el diccionario
+    for fecha, estados_asistencias in datos_reporte_asistencias.items():
+        # por cada fecha se suman todas las cantidades de estados de asistencias registrados en la base de datos
+        cantidad_estados_asistencias_registrados = estados_asistencias['asistencias'] + estados_asistencias['retardos'] + estados_asistencias['faltas']
+        # se tiene que checar si el reporte es para todos los estudiantes del grupo o para un estudiante en especifico
+        if expediente_estudiante == 'Todos':
+            # las faltas no registradas se obtienen al restarle a la cantidad de estudiantes en un grupo, la cantidad de estados de asistencias registrados
+            faltas_no_registradas = cantidad_estudiantes - cantidad_estados_asistencias_registrados
+        else:
+            # si es para un estudiante en especifico, se puede checar si no registro una asistencia en una fecha dada
+            # al ver si en una fecha dada la cantidad_estados_asistencias_registrados es 0, lo que quiere decir que no registro ningun estado
+            # si cantidad_estados_asistencias_registrados es mayor a 0 es porque registro asistencia esa fecha, 
+            # por lo que faltas_no_registradas = 0
+            faltas_no_registradas = 0
+            if cantidad_estados_asistencias_registrados == 0:
+                # si no registro asistencia esa fecha, es porque tiene una falta no registrada
+                faltas_no_registradas = 1
+        # esas faltas no registradas se suman a las faltas registradas
+        datos_reporte_asistencias[fecha]['faltas'] = datos_reporte_asistencias[fecha]['faltas'] + faltas_no_registradas
+    # se regresa el diccionario en forma de JSON
+    return jsonify(datos_reporte_asistencias)
