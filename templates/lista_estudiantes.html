@@ -22,7 +22,7 @@
             <th>Expediente</th>
             <th>Nombre Completo</th>
             {% if usuario.tipo_usuario == 'Docente' %}
-                <th>Remover estudiante del grupo</th>
+                <th>Remover</th>
             {% endif %}
         </tr>
     </thead>
@@ -31,7 +31,7 @@
             <td>{{integrante['expediente']}}</td>
             <td>{{integrante['nombre_completo']}}</td>
             {% if usuario.tipo_usuario == 'Docente' %}
-                <td><a href="#">Remover</a></td>
+                <td><button id="{{integrante['expediente']}}" class="boton_remover" onclick="mandarExpedienteEstudiante(this)">Remover</button></td>
             {% endif %}
         </tr>
     {% endfor %}
@@ -71,6 +71,28 @@
             }
         }
         }
+    }
+
+    function mandarExpedienteEstudiante(boton) {
+        /*
+      Esta función está enlazada a todos los botones de remover que se generan dinámicamente y se ejecuta cuando se pica 
+      uno de los botones.
+      */
+      // se crea un formulario "invisible" que va a servir para generar un POST y poder mandar los datos a Python
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.path = '/lista_estudiantes/{{clave_grupo}}';
+      // se crea un elemento input para el formulario
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      // con este nombre se obtienen los siguientes datos
+      hiddenField.name = 'expediente_estudiante';
+      // el id del boton contiene el expediente del estudiante
+      hiddenField.value = boton.id;
+      form.appendChild(hiddenField);
+      document.body.appendChild(form);
+      // Se lanza el POST
+      form.submit();
     }
 </script>
 <a href="/grupo/{{clave_grupo}}"> <button type="button" class="btn btn-dark">Regresar</button></button> </a>

@@ -44,3 +44,8 @@ class Asistencias(db.Model):
     estado = db.Column(db.String(15), nullable=False)
     expediente_estudiante = db.Column(db.String(55), ForeignKey('usuarios.expediente'), nullable=False)
     clave_grupo = db.Column(db.String(255), ForeignKey('grupos.clave'), nullable=False)
+
+
+class DominiosCorreo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, index=True, autoincrement="auto")
+    dominio_correo = db.Column(db.String(255), nullable=False)

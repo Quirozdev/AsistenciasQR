@@ -49,7 +49,6 @@ def asistencias(clave_grupo):
             registro_asistencia.estado = estado_asistencia
             # se actualiza el registro
             db.session.commit()
-        print(datos_asistencia_lista)
         return redirect(f'/asistencias/{clave_grupo}')
 
 
@@ -61,7 +60,21 @@ def lista_estudiantes(clave_grupo):
         return render_template('lista_estudiantes.html', integrantes_grupo=integrantes_grupo_ordenados, usuario=usuario, clave_grupo=clave_grupo)
     # POST
     else:
-        pass
+        # se obtiene el expediente del estudiante a remover
+        expediente_estudiante_a_remover = request.form['expediente_estudiante']
+        # se obtienen todos los registros de asistencias que haya tenido ese estudiante en ese grupo determinado
+        registros_asistencias_estudiante = Asistencias.query.filter_by(clave_grupo=clave_grupo, expediente_estudiante=expediente_estudiante_a_remover).all()
+        for registro in registros_asistencias_estudiante:
+            # se van a borrar todos los registros de asistencias de ese estudiante en ese grupo
+            db.session.delete(registro)
+        # se obtiene el registro en la tabla integrantes_grupos donde se relaciona a ese estudiante con el grupo en el que se ha unido
+        integrante = IntegrantesGrupos.query.filter_by(clave_grupo=clave_grupo, expediente_estudiante=expediente_estudiante_a_remover).first()
+        db.session.delete(integrante)
+        # se actualizan esos borrados en la base de datos
+        db.session.commit()
+        return redirect(f'/lista_estudiantes/{clave_grupo}')
+
+
 
 
 @asistencias_blueprint.route("/generar_reporte_asistencias/<clave_grupo>", methods=['GET', 'POST'])
