@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, session
 from passlib.hash import sha256_crypt
-from Modelos import db, Usuarios
+from Modelos import db, Usuarios, DominiosCorreo
 
 
 registro_blueprint = Blueprint('registro_blueprint', __name__)
@@ -36,6 +36,28 @@ def registro():
         apellido_paterno = request.form['apellido_paterno']
         apellido_materno = request.form['apellido_materno']
         tipo_usuario = request.form['tipo_usuario']
+        # se obtiene el dominio del correo ingresado, los correos van a tener la forma:
+        # algo@dominio.com
+        # de modo que al separar el string por la arroba, se obtiene una lista con 2 elementos:
+        # correo.split("@") -> lista = ['algo', 'dominio.com']
+        # el dominio es el elemento con indice 1, por lo que para obtenerlo:
+        # dominio_del_correo = lista[1]
+        dominio_del_correo = correo.split("@")[1]        
+        # se necesita checar si el dominio ya ha sido insertado por algun otro docente
+        # se checa en la bd si ese registro ya ha sido insertado
+        dominio_registrado_en_bd = DominiosCorreo.query.filter_by(dominio_correo=dominio_del_correo).first()
+        # si se obtuvo un None, es porque ese dominio no ha sido registrado en la bd por parte de un docente
+        if dominio_registrado_en_bd is None:
+            # se hace una validacion en la que se checa el tipo de usuario para ver lo que se hace con el dominio
+            if tipo_usuario == "Docente":
+                # se crea ese nuevo dominio para insertarse en la bd
+                nuevo_dominio = DominiosCorreo(dominio_correo=dominio_del_correo)
+                db.session.add(nuevo_dominio)
+            # Estudiante
+            else:
+                # si es un estudiante el que se esta registrando y el dominio del correo no ha sido registrado por un docente
+                mensaje = f"El dominio del correo que proporcionaste ({dominio_del_correo}) no ha sido registrado por algún docente, se requiere del registro de un docente con ese dominio de correo"
+                return render_template('registro.html', mensaje=mensaje)
         # se encripta la contrasenia
         contrasenia = sha256_crypt.hash(request.form['contrasenia'])
         # con los datos obtenidos del formulario, se agrega a ese usuario en la base de datos
