@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session, redirect, jsonify
 from Modelos import CodigosQr, IntegrantesGrupos, Usuarios, db, Asistencias
+from Usuarios import validar_pertenencia_usuario
 
 
 asistencias_blueprint = Blueprint('asistencias_blueprint', __name__)
@@ -8,11 +9,16 @@ asistencias_blueprint = Blueprint('asistencias_blueprint', __name__)
 @asistencias_blueprint.route("/asistencias/<clave_grupo>", methods=['GET', 'POST'])
 def asistencias(clave_grupo):
     if request.method == "GET":
-        asistencias = obtener_asistencias(clave_grupo)
-        datos_estudiantes = obtener_datos_estudiantes()
-        fechas = obtener_fechas_asistencia(clave_grupo)
         usuario = Usuarios.query.get(session['usuario'])
-        return render_template('asistencias.html', asistencias=asistencias, datos_estudiantes=datos_estudiantes, fechas=fechas, usuario=usuario, clave_grupo=clave_grupo)
+        # se tiene que validar que el usuario que trate de acceder a esta ruta pertenezca o sea el creador del grupo
+        pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+        if pertenece_o_es_creador:
+            asistencias = obtener_asistencias(clave_grupo)
+            datos_estudiantes = obtener_datos_estudiantes()
+            fechas = obtener_fechas_asistencia(clave_grupo)
+            return render_template('asistencias.html', asistencias=asistencias, datos_estudiantes=datos_estudiantes, fechas=fechas, usuario=usuario, clave_grupo=clave_grupo)
+        else:
+            return redirect('/pagina_no_permitida')
     # POST
     else:
         # en asistencias.html hay un fragmento de codigo de JavaScript que contiene una funcion que se encuentra
@@ -34,7 +40,6 @@ def asistencias(clave_grupo):
         estado_asistencia = datos_asistencia_lista[2].title()
         # se obtiene el registro correspondiente y se modifica el campo de estado de asistencia
         registro_asistencia = Asistencias.query.filter_by(expediente_estudiante=expediente_estudiante, clave_grupo=clave_grupo, fecha=fecha).first()
-        print(registro_asistencia)
         # es posible que el usuario no haya registrado su asistencia esa fecha en el grupo dado y como en la base de datos
         # no se guardan las faltas (para ahorrar espacio en la bd) que se generan automaticamente con la funcion obtener_asistencias()
         # entonces hay que checar si se obtuvo el registro o no.
@@ -56,8 +61,12 @@ def asistencias(clave_grupo):
 def lista_estudiantes(clave_grupo):
     if request.method == "GET":
         usuario = Usuarios.query.get(session['usuario'])
-        integrantes_grupo_ordenados = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
-        return render_template('lista_estudiantes.html', integrantes_grupo=integrantes_grupo_ordenados, usuario=usuario, clave_grupo=clave_grupo)
+        pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+        if pertenece_o_es_creador:
+            integrantes_grupo_ordenados = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
+            return render_template('lista_estudiantes.html', integrantes_grupo=integrantes_grupo_ordenados, usuario=usuario, clave_grupo=clave_grupo)
+        else:
+            return redirect('/pagina_no_permitida')
     # POST
     else:
         # se obtiene el expediente del estudiante a remover
@@ -80,10 +89,14 @@ def lista_estudiantes(clave_grupo):
 @asistencias_blueprint.route("/generar_reporte_asistencias/<clave_grupo>", methods=['GET', 'POST'])
 def generar_reporte_asistencias(clave_grupo):
     if request.method == "GET":
-        fechas = obtener_fechas_asistencia(clave_grupo)
-        estudiantes = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
         usuario = Usuarios.query.get(session['usuario'])
-        return render_template('reporte_asistencias.html', clave_grupo=clave_grupo, fechas=fechas, estudiantes=estudiantes, usuario=usuario)
+        pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+        if pertenece_o_es_creador:
+            fechas = obtener_fechas_asistencia(clave_grupo)
+            estudiantes = obtener_integrantes_grupo_ordenados_por_nombre(clave_grupo)
+            return render_template('reporte_asistencias.html', clave_grupo=clave_grupo, fechas=fechas, estudiantes=estudiantes, usuario=usuario)
+        else:
+            return redirect('/pagina_no_permitida')
 
 
 def obtener_datos_estudiantes() -> dict:

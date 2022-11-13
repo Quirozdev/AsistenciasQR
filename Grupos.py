@@ -1,26 +1,56 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, redirect, request
 from Modelos import CodigosQr, db, IntegrantesGrupos, Grupos, Usuarios, Asistencias
-
 from Otros import obtener_fecha_actual
+from Usuarios import validar_pertenencia_usuario
 
 
 grupos_blueprint = Blueprint('grupos_blueprint', __name__)
 
 
-@grupos_blueprint.route("/grupo/<clave_grupo>", methods=['GET', 'POST'])
+@grupos_blueprint.route("/grupo/<clave_grupo>")
 def grupos(clave_grupo):
     usuario = Usuarios.query.get(session['usuario'])
-    grupo = Grupos.query.get(clave_grupo)
-    fecha_actual = obtener_fecha_actual().date()
-    # se obtiene el codigo qr que se haya generado el dia actual en ese grupo, si es que se ha generado alguno
-    codigo_qr_hoy = CodigosQr.query.filter_by(fecha=fecha_actual, clave_grupo=clave_grupo).first()
-    # esto es para ver el estado de asistencia del estudiante
-    asistencia = Asistencias.query.filter_by(fecha=fecha_actual, expediente_estudiante=usuario.expediente, clave_grupo=clave_grupo).first()
-    if asistencia is None:
-        estado_asistencia = "Desconocido"
+    pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+    if pertenece_o_es_creador:
+        grupo = Grupos.query.get(clave_grupo)
+        fecha_actual = obtener_fecha_actual().date()
+        # se obtiene el codigo qr que se haya generado el dia actual en ese grupo, si es que se ha generado alguno
+        codigo_qr_hoy = CodigosQr.query.filter_by(fecha=fecha_actual, clave_grupo=clave_grupo).first()
+        # esto es para ver el estado de asistencia del estudiante
+        asistencia = Asistencias.query.filter_by(fecha=fecha_actual, expediente_estudiante=usuario.expediente, clave_grupo=clave_grupo).first()
+        if asistencia is None:
+            estado_asistencia = "Desconocido"
+        else:
+            estado_asistencia = asistencia.estado
+        return render_template('grupo.html', usuario=usuario, grupo=grupo, codigo_qr_hoy=codigo_qr_hoy, fecha=fecha_actual, estado_asistencia=estado_asistencia)
     else:
-        estado_asistencia = asistencia.estado
-    return render_template('grupo.html', usuario=usuario, grupo=grupo, codigo_qr_hoy=codigo_qr_hoy, fecha=fecha_actual, estado_asistencia=estado_asistencia)
+        return redirect('/pagina_no_permitida')
+
+
+@grupos_blueprint.route("/modificar_grupo/<clave_grupo>", methods=['GET', 'POST'])
+def modificar_grupo(clave_grupo):
+    usuario = Usuarios.query.get(session['usuario'])
+    grupo = Grupos.query.get(clave_grupo)
+    if request.method == "GET":
+        mensaje = ""
+        # se valida que el usuario que esta tratando de acceder a esa ruta sea el docente propietario del grupo
+        if grupo.expediente_propietario == usuario.expediente:
+            return render_template('modificar_grupo.html', grupo=grupo, mensaje=mensaje)
+        else:
+            return redirect('/pagina_no_permitida')
+    # POST
+    else:
+        # se obtienen los datos del formulario, la clave del grupo es inalterable por ser llave primaria
+        clave_grupo = request.form['clave_grupo']
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        # se actualiza el registro
+        grupo.nombre = nombre
+        grupo.descripcion = descripcion
+        # se guardan los cambios
+        db.session.commit()
+        # se redirecciona a la pagina de ese grupo
+        return redirect(f'/grupo/{clave_grupo}')
 
 def obtener_grupos(usuario: object) -> list:
     """

@@ -67,4 +67,6 @@ def registro():
         db.session.commit()
         # redireccionamos a index y asignamos la sesion de que el usuario ya se ha logeado.
         session['usuario'] = expediente
+        # tambien se guarda el tipo y nombre de un usuario para que se muestre en la barra de navegacion 
+        session['datos_usuario_logeado'] = f'{tipo_usuario}: {nombre} {apellido_paterno} {apellido_materno}'
         return redirect('/')

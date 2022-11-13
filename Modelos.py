@@ -49,3 +49,9 @@ class Asistencias(db.Model):
 class DominiosCorreo(db.Model):
     id = db.Column(db.Integer, primary_key=True, index=True, autoincrement="auto")
     dominio_correo = db.Column(db.String(255), nullable=False)
+
+
+class CodigosRecuperacion(db.Model):
+    id = db.Column(db.Integer, primary_key=True, index=True, autoincrement="auto")
+    correo = db.Column(db.String(255), ForeignKey('usuarios.correo'), nullable=False)
+    codigo_recuperacion = db.Column(db.String(255), nullable=False)

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}
+<h1>Cuenta:</h1>
+{% if session['usuario'] == usuario.expediente %}
+    <a href="/modificar_cuenta/{{usuario.expediente}}" class="btn btn-primary">Modificar cuenta</a>
+{% endif %}
+<p><strong>Expediente: </strong>{{usuario.expediente}}</p>
+<p><strong>Tipo de usuario: </strong>{{usuario.tipo_usuario}}</p>
+<p><strong>Nombre: </strong>{{usuario.nombre}}</p>
+<p><strong>Apellido Paterno: </strong>{{usuario.apellido_paterno}}</p>
+<p><strong>Apellido Materno: </strong>{{usuario.apellido_materno}}</p>
+<p><strong>Correo: </strong>{{usuario.correo}}</p>
+{% endblock %}

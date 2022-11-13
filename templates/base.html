@@ -14,6 +14,34 @@
     {% endblock %}
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/"><img src="/static/img/logo.png" alt="" width="60" height="48" class="d-inline-block align-text-center">
+            AsistenciasQR</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">    
+                <a class="nav-link px-3"  href="/">Inicio</a>
+                <a class="nav-link px-3"  href="/sobre_nosotros">Sobre nosotros</a>
+            {% if 'usuario' in session %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{session['datos_usuario_logeado']}}
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="/cuenta/{{session['usuario']}}">Mi cuenta</a></li>
+                <li><a class="dropdown-item" href="/logout/">Cerrar sesión</a></li>
+              </ul>
+            </li>
+          {% else %}
+              <p class="nav-link px-3">No has accedido a tu cuenta</p>
+          {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
     {% block body %}    
     {% endblock %}
 </body>

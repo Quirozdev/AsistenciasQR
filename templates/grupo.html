@@ -9,6 +9,8 @@
 {{super()}}
 {% endblock %}
 {% block body %}
+<h1>Grupo: {{grupo.nombre}}</h1>
+<p>Descripción: {{grupo.descripcion}}</p>
 {% if usuario.tipo_usuario == 'Docente' %}
     {% if codigo_qr_hoy != None %}
     <h2>Código QR del dia de {{fecha}}</h2>
@@ -45,15 +47,25 @@
         </div>
     {% endif %}
     <div class="col">
-            <div class="card h-100">
-                <img src="/static/img/reporteasistencias.webp" class="card-img-top" alt="Imagen" width="150" height="300">
-                <div class="card-body">
-                    <h5 class="card-title">Generar reporte de asistencias</h5>
-                    <p class="card-text">Aquí el docente podrá generar un reporte de asistencias.</p>
-                    <a href="/generar_reporte_asistencias/{{grupo.clave}}" class="btn btn-primary">Generar reporte de asistencias</a>
-                </div>
-            </div>
+      <div class="card h-100">
+        <img src="/static/img/reporteasistencias.webp" class="card-img-top" alt="Imagen" width="150" height="300">
+        <div class="card-body">
+          <h5 class="card-title">Generar reporte de asistencias</h5>
+          <p class="card-text">Aquí el docente podrá generar un reporte de asistencias.</p>
+          <a href="/generar_reporte_asistencias/{{grupo.clave}}" class="btn btn-primary">Generar reporte de asistencias</a>
         </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100">
+          <img src="/static/img/modificar_grupo.webp" class="card-img-top" alt="Imagen" width="150" height="300">
+          <div class="card-body">
+              <h5 class="card-title">Modificar grupo</h5>
+              <p class="card-text">Aquí el docente podrá modificar la información del grupo.</p>
+              <a href="/modificar_grupo/{{grupo.clave}}" class="btn btn-primary">Modificar grupo</a>
+          </div>
+      </div>
+    </div>
 {% else %}
     <p>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</p>
     <div class="row row-cols-1 row-cols-md-3 g-4">

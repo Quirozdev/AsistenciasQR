@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Página no permitida{% endblock %}
+{% block head %}
+{{super()}}
+{% endblock %}
+{% block body %}
+
+<div class="card text-center">
+  <div class="card-header">
+<h1>No puedes acceder a esta página</h1>
+  </div>
+  <div class="card-body">
+      <div align="center"><img src="/static/img/ops.png" width="100" height="100" ></div>
+    <h5 class="card-title">Ha ocurrido un error, no puedes acceder a esta página</h5>
+    <p class="card-text">Favor de regresar a la pagina inicial</p>
+    <a href="/" class="btn btn-warning">Regresar a la página principal</a>
+  </div>
+  <div class="card-footer text-muted">
+      ERROR
+  </div>
+</div>
+</div>
+{% endblock %}

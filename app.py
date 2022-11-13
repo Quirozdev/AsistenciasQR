@@ -5,7 +5,7 @@ from Login import login_blueprint
 from Grupos import grupos_blueprint, crear_grupo_asistencias, obtener_grupos, unirse_grupo_asistencias
 from CodigosQR import codigos_qr_blueprint
 from Asistencias import asistencias_blueprint
-
+from Usuarios import usuarios_blueprint
 
 
 
@@ -30,6 +30,7 @@ app.register_blueprint(login_blueprint)
 app.register_blueprint(grupos_blueprint)
 app.register_blueprint(codigos_qr_blueprint)
 app.register_blueprint(asistencias_blueprint)
+app.register_blueprint(usuarios_blueprint)
 
 # Para utilizar las cookies del session
 app.secret_key = "jBzTos1bzR92pTQ7"
@@ -90,6 +91,17 @@ def index():
                 # si no, se envia el mensaje y se vuelve a renderizar el index
                 return render_template('index.html', usuario=usuario, grupos=grupos, mensaje=mensaje)
 
+
+@app.route("/sobre_nosotros")
+@app.route("/sobre_nosotros/")
+def sobre_nosotros():
+    return render_template('sobre_nosotros.html')
+
+
+@app.route('/pagina_no_permitida')
+@app.route('/pagina_no_permitida/')
+def pagina_no_permitida():
+    return render_template('pagina_no_permitida.html')
 
 # para tener una página de error 404 personalizada
 @app.errorhandler(404)

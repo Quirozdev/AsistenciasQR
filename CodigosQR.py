@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, request, redirect
 from Modelos import Asistencias, db, IntegrantesGrupos, Grupos, Usuarios, CodigosQr
 from Asistencias import obtener_estado_asistencia
 from Otros import convertir_str_a_hora, obtener_fecha_actual
+from Usuarios import validar_pertenencia_usuario
 
 
 codigos_qr_blueprint = Blueprint('codigos_qr_blueprint', __name__)
@@ -12,7 +13,11 @@ def generar_qr(clave_grupo):
     mensaje = ""
     usuario = Usuarios.query.get(session['usuario'])
     if request.method == 'GET':
-        return render_template('generarQR.html', mensaje=mensaje, usuario=usuario)
+        pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+        if pertenece_o_es_creador:
+            return render_template('generarQR.html', mensaje=mensaje, usuario=usuario)
+        else:
+            return redirect('/pagina_no_permitida')
     # POST
     else:
         # se obtienen los datos
@@ -51,7 +56,11 @@ def escanear_qr(clave_grupo):
     mensaje = ""
     usuario = Usuarios.query.get(session['usuario'])
     if request.method == 'GET':
-        return render_template('escanearQR.html', mensaje=mensaje, usuario=usuario)
+        pertenece_o_es_creador = validar_pertenencia_usuario(usuario, clave_grupo)
+        if pertenece_o_es_creador:
+            return render_template('escanearQR.html', mensaje=mensaje, usuario=usuario)
+        else:
+            return redirect('/pagina_no_permitida')
     # POST
     else:
         # se obtiene la hora y la fecha a la que registro su asistencia el usuario
