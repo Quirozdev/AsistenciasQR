@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect
-from Modelos import db, Usuarios, Grupos, IntegrantesGrupos
+from Modelos import db, Usuarios
 from Registro import registro_blueprint
 from Login import login_blueprint
 from Grupos import grupos_blueprint, crear_grupo_asistencias, obtener_grupos, unirse_grupo_asistencias
@@ -111,7 +111,7 @@ def pagina_no_encontrada(e):
 
 # para tener una página de error 500 personalizada
 @app.errorhandler(500)
-def pagina_no_encontrada(e):
+def pagina_error(e):
     return render_template('500.html'), 500
     
 

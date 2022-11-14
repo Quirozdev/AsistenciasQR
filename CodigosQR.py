@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, request, redirect
-from Modelos import Asistencias, db, IntegrantesGrupos, Grupos, Usuarios, CodigosQr
+from Modelos import Asistencias, db, Usuarios, CodigosQr
 from Asistencias import obtener_estado_asistencia
 from Otros import convertir_str_a_hora, obtener_fecha_actual
 from Usuarios import validar_pertenencia_usuario

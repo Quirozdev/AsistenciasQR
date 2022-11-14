@@ -52,13 +52,13 @@
         const fechaDesde = document.getElementById('fecha_desde').value;
         const fechaHasta = document.getElementById('fecha_hasta').value;
         const estudiante = document.getElementById('estudiante').value;
+        const parrafo_mensaje = document.getElementById('mensaje');
         $.ajax({
             type: "GET",
             url: '/datos_reporte_asistencias/{{clave_grupo}}/' + estudiante,
             dataType: 'json',
             success: function(data) {
                 // console.log(data);
-                const parrafo_mensaje = document.getElementById('mensaje');
                 if (Object.keys(data).length == 0) {
                     parrafo_mensaje.innerText = `No se encontró información de asistencias entre las fechas ${fechaDesde} y ${fechaHasta} para el estudiante "${estudiante}"`;
                     borrarGraficoBarras();
