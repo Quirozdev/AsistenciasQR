@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, request, redirect
-from Modelos import db, IntegrantesGrupos, Grupos, Usuarios
+from Modelos import db, IntegrantesGrupos, Grupos, Usuarios, DominiosCorreo, CodigosRecuperacion
 from passlib.hash import sha256_crypt
 
 
@@ -21,16 +21,47 @@ def modificar_cuenta(expediente_usuario):
             return redirect('/pagina_no_permitida')
     # POST
     else:
-        # se obtienen los datos del formulario. El expediente, tipo de usuario y correo no pueden ser modificados,
-        # el primero por ser clave primaria, el segundo porque el tipo determina si pertenece o crea grupos
-        # y el tercero porque por que el usuario podria cambiar el dominio de su correo al de una institucion
-        # que no este registrada mediante un docente
+        # se obtienen los datos del formulario. El expediente y tipo de usuario no pueden ser modificados,
+        # el primero por ser clave primaria y el segundo porque el tipo determina si pertenece o crea grupos
         nombre = request.form['nombre']
+        correo = request.form['correo']
+        # si se modifico el correo
+        if correo != usuario.correo:
+            # se tienen que hacer todas las validaciones del correo
+            # checamos que ese correo no este siendo usado por otro usuario
+            usuario_con_ese_correo = Usuarios.query.filter_by(correo=correo).first()
+            # si se encontro a un usuario con ese correo
+            if usuario_con_ese_correo is not None:
+                mensaje = "Ese correo ya ha sido registrado por otro usuario"
+                return render_template('modificar_cuenta.html', usuario=usuario, mensaje=mensaje)
+            # se valida el dominio del correo
+            dominio_del_correo = correo.split("@")[1]        
+            # se necesita checar si el dominio ya ha sido insertado por algun otro docente
+            # se checa en la bd si ese registro ya ha sido insertado
+            dominio_registrado_en_bd = DominiosCorreo.query.filter_by(dominio_correo=dominio_del_correo).first()
+            # si se obtuvo un None, es porque ese dominio no ha sido registrado en la bd por parte de un docente
+            if dominio_registrado_en_bd is None:
+                # se hace una validacion en la que se checa el tipo de usuario para ver lo que se hace con el dominio
+                if usuario.tipo_usuario == "Docente":
+                    # se crea ese nuevo dominio para insertarse en la bd
+                    nuevo_dominio = DominiosCorreo(dominio_correo=dominio_del_correo)
+                    db.session.add(nuevo_dominio)
+                # Estudiante
+                else:
+                    # si es un estudiante el que se esta registrando y el dominio del correo no ha sido registrado por un docente
+                    mensaje = f"El dominio del correo que proporcionaste ({dominio_del_correo}) no ha sido registrado por algún docente, se requiere del registro de un docente con ese dominio de correo"
+                    return render_template('modificar_cuenta.html', usuario=usuario, mensaje=mensaje)
+            # hay que checar si en la tabla codigos_recuperacion hay un registro con ese correo, de ser asi hay que borrarlo
+            codigo_registrado = CodigosRecuperacion.query.filter_by(correo=usuario.correo).first()
+            if codigo_registrado is not None:
+                # si se encontro, se borra
+                db.session.delete(codigo_registrado)
         apellido_paterno = request.form['apellido_paterno']
         apellido_materno = request.form['apellido_materno']
         contrasenia = request.form['contrasenia']
         # se actualiza el registro
         usuario.nombre = nombre
+        usuario.correo = correo
         usuario.apellido_paterno = apellido_paterno
         usuario.apellido_materno = apellido_materno
         usuario.contrasenia = sha256_crypt.hash(contrasenia)

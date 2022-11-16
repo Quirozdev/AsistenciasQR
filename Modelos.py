@@ -53,5 +53,5 @@ class DominiosCorreo(db.Model):
 
 class CodigosRecuperacion(db.Model):
     id = db.Column(db.Integer, primary_key=True, index=True, autoincrement="auto")
-    correo = db.Column(db.String(255), ForeignKey('usuarios.correo'), nullable=False)
+    correo = db.Column(db.String(255), unique=True, nullable=False)
     codigo_recuperacion = db.Column(db.String(255), nullable=False)

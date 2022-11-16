@@ -124,11 +124,11 @@
           <label for="apellido_materno">Apellido Materno</label>
         </div>
         <div class="form-floating mb-3">
-          <input type="email" class="form-control" name="correo" id="correo" placeholder="Correo" maxlength="254" value="{{usuario.correo}}" readonly>
+          <input type="email" class="form-control" name="correo" id="correo" placeholder="Correo" maxlength="254" value="{{usuario.correo}}" required>
           <label for="correo">Correo</label>
         </div>
         <div class="form-floating mb-3">
-          <input type="password" class="form-control" name="contrasenia" id="contrasenia" placeholder="Constraseña" maxlength="108" required>
+          <input type="password" class="form-control" name="contrasenia" id="contrasenia" placeholder="Constraseña" minlength="8" maxlength="108" required>
           <label for="floatingPassword">Password</label>
         </div>
         <div class="boton">

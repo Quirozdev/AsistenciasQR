@@ -8,21 +8,30 @@
 <h1>Generar reporte de asistencias</h1>
 
 <p id="mensaje"></p>
+
+
+<p>
+    <button class="btn btn-outline-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+      Fechas disponibles
+    </button>
+  </p>
+  <div class="collapse" id="collapseExample">
+    <div class="card card-body">
+        {% if fechas|length == 0 %}
+         <p>No hay fechas disponibles, porque no se encontraron registros de asistencias</p>
+        {% else %}
+            {% for fecha in fechas %}
+                <p>{{fecha}}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+  </div>
+
 <label for="fecha_desde">Desde:</label>
-<input list="fechas_desde" value="{{fechas[0]}}" name="fecha_desde" id="fecha_desde">
-<datalist id="fechas_desde">
-    {% for fecha in fechas %}
-        <option value="{{fecha}}">{{fecha}}</option>
-    {% endfor %}
-</datalist>
+<input type="date" name="fecha_desde" id="fecha_desde">
 
 <label for="fecha_hasta">Hasta:</label>
-<input list="fechas_hasta" value="{{fechas[-1]}}" name="fecha_hasta" id="fecha_hasta">
-<datalist id="fechas_hasta">
-    {% for fecha in fechas %}
-        <option value="{{fecha}}">{{fecha}}</option>
-    {% endfor %}
-</datalist>
+<input type="date" name="fecha_hasta" id="fecha_hasta">
 
 <label for="estudiante">Estudiante:</label>
 <input list="estudiantes" value="Todos" name="estudiante" id="estudiante">
@@ -52,7 +61,14 @@
         const fechaDesde = document.getElementById('fecha_desde').value;
         const fechaHasta = document.getElementById('fecha_hasta').value;
         const estudiante = document.getElementById('estudiante').value;
+        console.log(estudiante === '');
         const parrafo_mensaje = document.getElementById('mensaje');
+        if (estudiante === '') {
+            parrafo_mensaje.innerText = `Por favor, introduce un Estudiante en el campo correspondiente`;
+            borrarGraficoBarras();
+            borrarGraficoPastel();
+            return;
+        }
         $.ajax({
             type: "GET",
             url: '/datos_reporte_asistencias/{{clave_grupo}}/' + estudiante,
@@ -60,18 +76,28 @@
             success: function(data) {
                 // console.log(data);
                 if (Object.keys(data).length == 0) {
-                    parrafo_mensaje.innerText = `No se encontró información de asistencias entre las fechas ${fechaDesde} y ${fechaHasta} para el estudiante "${estudiante}"`;
+                    parrafo_mensaje.innerText = `No se encontró información de asistencias entre las fechas "${fechaDesde}" y "${fechaHasta}" para el estudiante "${estudiante}"`;
                     borrarGraficoBarras();
                     borrarGraficoPastel();
                     return;
                 }
                 const datosFiltrados = filtrarDatosPorFechas(data, fechaDesde, fechaHasta);
                 if (datosFiltrados == -1) {
-                    parrafo_mensaje.innerText = 'La fecha "desde" debe de ser mayor a la de "hasta" y ambas deben de ser opciones disponibles en la lista de opciones';
+                    parrafo_mensaje.innerText = 'La fecha "desde" debe de ser mayor a la de "hasta" y se deben de proporcionar ambas fechas';
+                    borrarGraficoBarras();
+                    borrarGraficoPastel();
+                    return;
                 } else {
-                    parrafo_mensaje.innerText = "";
-                    generarGraficoBarras(datosFiltrados);
-                    generarGraficoPastel(datosFiltrados);
+                    if (Object.keys(datosFiltrados).length == 0) {
+                        parrafo_mensaje.innerText = `No se encontró información de asistencias entre las fechas ${fechaDesde} y ${fechaHasta} para el estudiante "${estudiante}"`;
+                        borrarGraficoBarras();
+                        borrarGraficoPastel();
+                        return;
+                    } else {
+                        parrafo_mensaje.innerText = "";
+                        generarGraficoBarras(datosFiltrados);
+                        generarGraficoPastel(datosFiltrados);
+                    }
                 }
             },
             error: function(e) {
@@ -97,16 +123,28 @@
 
     function filtrarDatosPorFechas(datos, fechaDesde, fechaHasta) {
         const datos_filtrados = {};
-        const fechas = Object.keys(datos);
-        const desde = fechas.indexOf(fechaDesde);
-        const hasta = fechas.indexOf(fechaHasta);
-        // si la fecha desde es mayor a la fecha hasta o si no se encontro la fecha desde o hasta, debido a que el usuario ingreso una fecha incorrecta manualmente
-        if (desde > hasta || (desde == -1 || hasta == -1)) {
+        // se obtienen strings del input de fechas, por lo que se necesitan transformar a objetos
+        // de tipo Date, para poder comparar fechas
+        const fechaDesdeConvertida = new Date(fechaDesde);
+        const fechaHastaConvertida = new Date(fechaHasta);
+        // si la fecha desde es mayor que la fecha hasta
+        if (fechaDesdeConvertida > fechaHastaConvertida) {
             return -1;
         }
-        for (let i = desde; i <= hasta; i++) {
-            datos_filtrados[fechas[i]] = datos[fechas[i]];
+        // se obtiene un arreglo con las fechas, que son las llaves en datos
+        const fechas = Object.keys(datos);
+        // se define un arreglo que se va a llenar filtrando
+        const fechasFiltradas = fechas.filter((fecha) => {
+            fechaConvertida = new Date(fecha);
+            // va a ir agregando las fechas que esten entre la fecha desde y la fecha hasta en el arreglo
+            return fechaConvertida >= fechaDesdeConvertida && fechaConvertida <= fechaHastaConvertida;
+        });
+        // al objeto de datos filtrados se agregan solo las fechas que cumplieron el filtro.
+        // como llave se agrega la fecha y como valor, los contadores respectivos a cada estado de asistencia
+        for (let i = 0; i < fechasFiltradas.length; i++) {
+            datos_filtrados[fechasFiltradas[i]] = datos[fechasFiltradas[i]];
         }
+        // console.log(datos_filtrados);
         return datos_filtrados;
     }
 
