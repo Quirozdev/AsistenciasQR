@@ -29,7 +29,7 @@
     {% for integrante in integrantes_grupo %}
         <tr>
             <td>{{integrante['expediente']}}</td>
-            <td>{{integrante['nombre_completo']}}</td>
+            <td><a href="/cuenta/{{integrante['expediente']}}">{{integrante['nombre_completo']}}</a></td>
             {% if usuario.tipo_usuario == 'Docente' %}
                 <td><button id="{{integrante['expediente']}}" class="boton_remover" onclick="mandarExpedienteEstudiante(this)">Remover</button></td>
             {% endif %}
