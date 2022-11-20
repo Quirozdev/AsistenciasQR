@@ -3,26 +3,58 @@
 {% block head %}
 {{super()}}
 <style>
-    table, th, td {
-      border: 1px solid black;
-      border-collapse: collapse;
-    }
-    </style>
+  h2 {
+    text-align: center;
+  }
+
+  .Asistencia {
+    background-color: rgba(59, 255, 34, 0.8) !important;
+  }
+
+  .Retardo {
+    background-color: rgba(255, 217, 41, 0.8) !important;
+  }
+
+  .Falta {
+    background-color: rgba(255, 75, 41, 0.8) !important;
+  }
+
+  .campo-busqueda {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+
+  input[type=text] {
+    border: 2px solid rgb(0, 255, 136);
+  }
+</style>
 {% endblock %}
 {% block body %}
 {% if fechas|length == 0 %}
 <h2>No se han generado códigos QR en este grupo, por lo que no hay registros de asistencias</h2>
-<a href="/grupo/{{clave_grupo}}">Volver</a>
 {% elif not asistencias %}
 <h2>No hay estudiantes que integren este grupo actualmente</h2>
-<a href="/grupo/{{clave_grupo}}">Volver</a>
 {% else %}
-<label for="filtrarPorNombre">Buscar por nombre</label>
-<input type="text" id="filtrarPorNombre" onkeyup="filtrarTablaPorNombre()" placeholder="Perez...">
-<label for="filtrarPorFecha">Buscar por fecha</label>
-<input type="text" id="filtrarPorFecha" onkeyup="filtrarTablaPorFecha()" placeholder="2022-10-22">
-<table id="tabla_asistencias">
-    <thead>
+
+<div class="row g-2">
+  <div class="col-md campo-busqueda">
+    <div class="form-floating">
+      <input type="text" class="form-control" id="filtrarPorNombre" onkeyup="filtrarTablaPorNombre()">
+      <label for="filtrarPorNombre" class="form-label">Nombre</label>
+    </div>
+  </div>
+  <div class="col-md campo-busqueda">
+    <div class="form-floating">
+      <input type="text" class="form-control" id="filtrarPorFecha" onkeyup="filtrarTablaPorFecha()">
+      <label for="filtrarPorFecha" class="form-label">Fecha</label>
+    </div>
+  </div>
+</div>
+
+<table id="tabla_asistencias" class="table  table-secondary table-responsive table-bordered">
+    <thead class="table-dark">
       <tr>
         <th>Estudiante</th>
         {% for fecha in fechas %}
@@ -35,8 +67,8 @@
               <td>{{datos_estudiantes[expediente]['apellido_paterno']}} {{datos_estudiantes[expediente]['apellido_materno']}} {{datos_estudiantes[expediente]['nombre']}}</td>
               {% for fecha in fechas %}
                 {% if usuario.tipo_usuario == "Docente" %}
-                  <td class="{{fecha}}">
-                    <select onchange="actualizarValor(this)" name="{{expediente}} {{fecha}}" id="{{expediente}} {{fecha}}">
+                  <td class="{{fecha}} {{asistencia[fecha]}}">
+                    <select onchange="actualizarValor(this)" name="{{expediente}} {{fecha}}" id="{{expediente}} {{fecha}}" class="form-select">
                       {% if asistencia[fecha] == "Asistencia" %}
                       <option value="asistencia" selected>Asistencia</option>
                       <option value="retardo">Retardo</option>
@@ -53,7 +85,7 @@
                     </select>
                   </td>
                 {% else %}
-                  <td class="{{fecha}}">{{asistencia[fecha]}}</td>
+                  <td class="{{fecha}} {{asistencia[fecha]}}">{{asistencia[fecha]}}</td>
                 {% endif %}
               {% endfor %}
           </tr>
@@ -163,4 +195,5 @@
   }
 </script>
 {% endif %}
+<a href="/grupo/{{clave_grupo}}"><button type="button" class="btn btn-dark">Regresar</button></a>
 {% endblock %}

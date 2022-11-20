@@ -2,19 +2,35 @@
 {% block title %}Reporte de asistencias{% endblock %}
 {% block head %}
 {{super()}}
+<style>
+    h2 {
+        text-align: center;
+    }
+
+    #mensaje {
+        text-align: center;
+    }
+
+    .centrar {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+    }
+</style>
 {% endblock %}
 {% block body %}
 {% if usuario.tipo_usuario == "Docente" %}
-<h1>Generar reporte de asistencias</h1>
+<h2>Generar reporte de asistencias</h2>
 
 <p id="mensaje"></p>
 
-
+<div class="centrar">
 <p>
     <button class="btn btn-outline-success" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
       Fechas disponibles
     </button>
-  </p>
+</p>
+</div>
   <div class="collapse" id="collapseExample">
     <div class="card card-body">
         {% if fechas|length == 0 %}
@@ -26,27 +42,31 @@
         {% endif %}
     </div>
   </div>
+  <div class="row g-3">
+    <div class="col-sm-7">
+        <label for="estudiante">Estudiante:</label>
+        <input list="estudiantes" value="Todos" name="estudiante" id="estudiante" class="form-control">
+        <datalist id="estudiantes">
+            <option value="Todos" id="Todos" data-nombre="Todos">Todos</option>
+            {% for estudiante in estudiantes %}
+                <option value="{{estudiante['expediente']}}" data-nombre="{{estudiante['nombre_completo']}}" id="{{estudiante['expediente']}}">{{estudiante['nombre_completo']}}</option>
+            {% endfor %}
+        </datalist>
+    </div>
+    <div class="col-sm">
+        <label for="fecha_desde">Desde:</label>
+        <input type="date" name="fecha_desde" id="fecha_desde" class="form-control">
+    </div>
+    <div class="col-sm">
+        <label for="fecha_hasta">Hasta:</label>
+        <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control">
+    </div>
+    <div class="col-12">
+        <button id="boton_generar_reporte" class="btn btn-success">Generar reporte</button>
+    </div>
+  </div>
 
-<label for="fecha_desde">Desde:</label>
-<input type="date" name="fecha_desde" id="fecha_desde">
-
-<label for="fecha_hasta">Hasta:</label>
-<input type="date" name="fecha_hasta" id="fecha_hasta">
-
-<label for="estudiante">Estudiante:</label>
-<input list="estudiantes" value="Todos" name="estudiante" id="estudiante">
-<datalist id="estudiantes">
-    <option value="Todos" id="Todos" data-nombre="Todos">Todos</option>
-    {% for estudiante in estudiantes %}
-        <option value="{{estudiante['expediente']}}" data-nombre="{{estudiante['nombre_completo']}}" id="{{estudiante['expediente']}}">{{estudiante['nombre_completo']}}</option>
-    {% endfor %}
-</datalist>
-
-<button id="boton_generar_reporte">Generar reporte</button>
-
-<h2 id="parametros_busqueda"></h2>
-
-<div id="">
+<div>
     <canvas id="grafico_barras"></canvas>
 </div>
 
@@ -263,7 +283,7 @@
     }
 </script>
 {% else %}
-<h1>No puedes acceder a esta página, se requiere ser Docente</h1>
-<a href="/grupo/{{clave_grupo}}">Volver</a>
+<h2>No puedes acceder a esta página, se requiere ser Docente</h2>
+<a href="/grupo/{{clave_grupo}}"><button type="button" class="btn btn-dark">Regresar</button></a>
 {% endif %}
 {% endblock %}
