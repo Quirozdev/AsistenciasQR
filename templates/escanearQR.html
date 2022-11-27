@@ -12,17 +12,46 @@
     #qr-video {
         width: 50%;
     }
+
+    #mensaje {
+        font-size: 20;
+        text-align: center;
+    }
+
+    .seleccion {
+        text-align: center;
+        margin: 10px;
+    }
+
+    .form-select {
+        padding: 12px 20px;
+        margin: 20px auto;
+        display: block;
+        border: 2px solid rgb(0, 255, 136);
+        border-radius: 10px;
+        box-sizing: border-box;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        text-align: center;
+        outline: none;
+        transition: 0.25s;
+    }
+
+    h3 {
+        text-align: center;
+        margin-top: 10px;
+    }
 </style>
 {% endblock %}
 {% block body %}
 {% if usuario.tipo_usuario == "Estudiante" %}
-<p>{{mensaje}}</p>
+<h3>Escanea el código QR</h3>
+<p id="mensaje">{{mensaje}}</p>
 <div id="video-container">
     <video id="qr-video"></video>
 </div>
-<div>
+<div class="seleccion">
     <b>Seleccionar cámara:</b>
-    <select id="cam-list">
+    <select id="cam-list" class="form-select">
         <option value="environment" selected>Cámara trasera</option>
         <option value="user">Cámara frontal</option>
     </select>
@@ -40,6 +69,7 @@
     const camQrResult = document.getElementById('cam-qr-result');
     // cuando se escanea el codigo qr
     function setResult(label, result) {
+        scanner.stop();
         const form = document.createElement('form');
         form.method = 'POST';
         form.path = '/escanear_qr/{{clave_grupo}}';

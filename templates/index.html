@@ -14,6 +14,10 @@
         body{
             background-color: #171717;
         }
+
+        .mensaje {
+            color: red;
+        }
         .cajanav {
             height: 60px;
             padding-top: 10px;
@@ -106,7 +110,7 @@
             margin-bottom: 70px;
             border-bottom: 2px solid rgb(48,224, 142);
         }
-        .row {
+        .fila {
             margin: 40px;
             padding: 20px;
             background-color: white;
@@ -153,53 +157,87 @@
             padding: 5px;
             margin: 3px;
         }
+
+        .margen-tarjetas {
+            margin: 15px;
+        }
+
+        input[type=text] {
+            border: 2px solid rgb(0, 255, 136);
+        }
+
+        textarea {
+            border: 2px solid rgb(0, 255, 136) !important;
+        }
+
+        .campo-busqueda {
+            margin-top: 12px;
+            margin-bottom: 15px;
+            margin-left: 15px;
+            margin-right: 12px;
+        }
     </style>
 </head>
 {% endblock %}
 {% block body %}
     {% if usuario.tipo_usuario != "Invitado" %}
-        <h1>Hola {{usuario.nombre}} {{usuario.apellido_paterno}} {{usuario.apellido_materno}}!</h1>
-        <p>{{mensaje}}</p>
+        <p class="mensaje">{{mensaje}}</p>
         {% if usuario.tipo_usuario == 'Docente' %}
-            <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                Crear grupo de asistencias
-                </a>
-                <div class="dropdown-menu">
-                    <form class="px-4 py-3" action="" method="POST">
-                    <div class="mb-3">
-                        <label for="clave" class="form-label">Clave (Debe ser única y es la que será compartida con tus estudiantes para acceder al grupo)</label>
-                        <input type="text" class="form-control" id="clave" name="clave" maxlength="254" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="nombre_grupo" class="form-label">Nombre del grupo</label>
-                        <input type="text" class="form-control" id="nombre_grupo" name="nombre_grupo" maxlength="254" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción del grupo</label>
-                        <textarea rows="6" cols="48" id="descripcion" name="descripcion" class="form-control" placeholder="Este grupo es para..." maxlength="508" required></textarea>
-                    </div>
-                    <input type="submit" class="submitButton" name="crear_grupo" value="Crear">
-                    </form>
+        <div class="row g-2">
+            <div class="col-md campo-busqueda">
+                <div class="form-floating">
+                    <input type="text" id="buscarGrupoPorNombre" class="form-control" onkeyup="buscarGrupoPorNombre()">
+                    <label for="buscarGrupoPorNombre" class="form-label">Nombre del grupo</label>
                 </div>
             </div>
-            <label for="buscarGrupoPorNombre">Buscar grupo por nombre</label>
-            <input type="text" id="buscarGrupoPorNombre" onkeyup="buscarGrupoPorNombre()" placeholder="Manejo de...">
+            <div class="col-md text-center">
+                <div class="dropdown">
+                    <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    Crear grupo de asistencias
+                    </a>
+                    <div class="dropdown-menu">
+                        <form class="px-4 py-3" action="" method="POST">
+                        <div class="mb-3">
+                            <label for="clave" class="form-label">Clave única de acceso</label>
+                            <input type="text" class="form-control" id="clave" name="clave" maxlength="254" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre_grupo" class="form-label">Nombre del grupo</label>
+                            <input type="text" class="form-control" id="nombre_grupo" name="nombre_grupo" maxlength="254" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción del grupo</label>
+                            <textarea rows="4" cols="20" id="descripcion" name="descripcion" class="form-control" placeholder="Este grupo es para..." maxlength="508" required></textarea>
+                        </div>
+                        <input type="submit" class="submitButton btn-success" name="crear_grupo" value="Crear">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
             {% for grupo in grupos %}
-                <div class="card">
+                <div class="card text-center text-white bg-dark border-primary margen-tarjetas">
                     <div class="card-header">
-                        {{grupo.nombre}}
+                        <h4 class="card-title">{{grupo.nombre}}</h4>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">Clave de acceso: {{grupo.clave}}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Clave de acceso: {{grupo.clave}}</h6>
                         <p class="card-text">{{grupo.descripcion}}</p>
-                        <a href="/grupo/{{grupo.clave}}" class="btn btn-primary">Ir</a>
+                        <a href="/grupo/{{grupo.clave}}" class="btn btn-outline-info">Ir</a>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
+        <div class="row g-2">
+            <div class="col-md campo-busqueda">
+                <div class="form-floating">
+                    <input type="text" id="buscarGrupoPorNombre" class="form-control" onkeyup="buscarGrupoPorNombre()">
+                    <label for="buscarGrupoPorNombre" class="form-label">Nombre del grupo</label>
+                </div>
+            </div>
+            <div class="col-md text-center">
             <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 Unirse a un grupo de asistencias
                 </a>
                 <div class="dropdown-menu">
@@ -208,24 +246,24 @@
                         <label for="clave" class="form-label">Clave del grupo</label>
                         <input type="text" class="form-control" id="clave" name="clave" maxlength="254" required>
                     </div>
-                    <input type="submit" class="submitButton" name="unirse_grupo" value="Unirse">
+                    <input type="submit" class="submitButton btn-success" name="unirse_grupo" value="Unirse">
                     </form>
                 </div>
             </div>
-            <label for="buscarGrupoPorNombre">Buscar grupo por nombre</label>
-            <input type="text" id="buscarGrupoPorNombre" onkeyup="buscarGrupoPorNombre()" placeholder="Manejo de...">
-            {% for grupo in grupos %}
-            <div class="card">
-                <div class="card-header">
-                {{grupo.nombre}}
-                </div>
-                <div class="card-body">
-                <h5 class="card-title">Propietario: {{grupo.nombre_propietario}} {{grupo.apellido_paterno_propietario}} {{grupo.apellido_materno_propietario}}</h5>
-                <p class="card-text">{{grupo.descripcion}}</p>
-                <a href="/grupo/{{grupo.clave}}" class="btn btn-primary">Ir</a>
-                </div>
-            </div>
-            {% endfor %}
+        </div>
+        </div>
+                {% for grupo in grupos %}
+                    <div class="card text-center text-white bg-dark border-primary margen-tarjetas">
+                        <div class="card-header">
+                            <h4 class="card-title">{{grupo.nombre}}</h4>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Propietario: {{grupo.nombre_propietario}} {{grupo.apellido_paterno_propietario}} {{grupo.apellido_materno_propietario}}</h6>
+                            <p class="card-text">{{grupo.descripcion}}</p>
+                            <a href="/grupo/{{grupo.clave}}" class="btn btn-outline-info">Ir</a>
+                        </div>
+                    </div>
+                {% endfor %}
         {% endif %}
         <script>
             function buscarGrupoPorNombre() {
@@ -281,7 +319,7 @@
                         <h3>Nuestro objetivo es poder ayudar a los maestros y a los alumnos a tener una herramienta que facilite el pase de asistencia para sus clases.</h3>
                         <h1>Funciones</h1>
                     </div>
-                    <div class="row">
+                    <div class="row fila">
                       <div class="col-4">
                         <div class="list-group" id="list-tab" role="tablist">
                           <a class="lista" id="list-home-list" data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home" style="border-radius: 5px 5px 0 0;">Código QR</a>

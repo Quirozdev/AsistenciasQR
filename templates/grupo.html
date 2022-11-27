@@ -2,27 +2,45 @@
 {% block title %}{{grupo.nombre}}{% endblock %}
 {% block head %}
 <style>
-    h2 {
-        color: red;
+    #informacion-grupo {
+      text-align: center;
+    }
+
+    #descripcion-grupo {
+      font-size: 20px;
+    }
+
+    h3 {
+        text-align: center;
+    }
+    
+    #contenedor-qr {
+      display: flex;
+      justify-content: center;
+      margin: 15px;
     }
 </style>
 {{super()}}
 {% endblock %}
 {% block body %}
-<h1>Grupo: {{grupo.nombre}}</h1>
-<p>Descripción: {{grupo.descripcion}}</p>
+<div id="informacion-grupo">
+  <h1>Grupo: {{grupo.nombre}}</h1>
+  <p id="descripcion-grupo">Descripción: {{grupo.descripcion}}</p>
+</div>
 {% if usuario.tipo_usuario == 'Docente' %}
     {% if codigo_qr_hoy != None %}
-    <h2>Código QR del dia de {{fecha}}</h2>
-    <div id="qrcode"></div>
+    <h3>Código QR del dia de {{fecha}}</h3>
+    <div id="contenedor-qr">
+      <div id="qrcode"></div>
+    </div>
     <script src="{{url_for('static', filename='js/qrcode.min.js')}}"></script>
     <script type="text/javascript">
     let contenedor_codigo_qr = document.getElementById("qrcode");
     function generarCodigoQR() {
         var qrcode = new QRCode(contenedor_codigo_qr, {
         text: '{{codigo_qr_hoy.clave}}',
-        width: 128,
-        height: 128,
+        width: 175,
+        height: 175,
         colorDark : "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H
@@ -31,17 +49,19 @@
     ;
     generarCodigoQR();
     </script>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-4 g-4">
     {% else %}
-        <h2>No se ha generado un código QR el día de hoy ({{fecha}})</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <h3>No se ha generado un código QR el día de hoy ({{fecha}})</h3>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
         <div class="col">
             <div class="card h-100">
                 <img src="/static/img/generaqr.webp" class="card-img-top" alt="Imagen" width="150" height="300">
                 <div class="card-body">
                     <h5 class="card-title">Generar código QR para hoy</h5>
                     <p class="card-text">Aquí el docente podrá generar los códigos QR para tomar asistencia.</p>
-                    <a href="/generar_qr/{{grupo.clave}}" class="btn btn-primary">Generar código QR</a>
+                </div>
+                <div class="card-footer">
+                  <a href="/generar_qr/{{grupo.clave}}" class="btn btn-primary">Generar código QR</a>
                 </div>
             </div>
         </div>
@@ -52,6 +72,8 @@
         <div class="card-body">
           <h5 class="card-title">Generar reporte de asistencias</h5>
           <p class="card-text">Aquí el docente podrá generar un reporte de asistencias.</p>
+        </div>
+        <div class="card-footer">
           <a href="/generar_reporte_asistencias/{{grupo.clave}}" class="btn btn-primary">Generar reporte de asistencias</a>
         </div>
       </div>
@@ -62,19 +84,23 @@
           <div class="card-body">
               <h5 class="card-title">Modificar grupo</h5>
               <p class="card-text">Aquí el docente podrá modificar la información del grupo.</p>
-              <a href="/modificar_grupo/{{grupo.clave}}" class="btn btn-primary">Modificar grupo</a>
+          </div>
+          <div class="card-footer">
+            <a href="/modificar_grupo/{{grupo.clave}}" class="btn btn-primary">Modificar grupo</a>
           </div>
       </div>
     </div>
 {% else %}
-    <p>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</p>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <h3>Tu estado de asistencia el día de hoy ({{fecha}}) es: {{estado_asistencia}}</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
   <div class="col">
-    <div class="card">
+    <div class="card h-100">
       <img src="/static/img/qr.png" class="card-img-top" alt="QR" width="150" height="300">
       <div class="card-body">
         <h5 class="card-title">Escanea el código QR</h5>
         <p class="card-text">Aquí podremos escanear el código QR generado para que marque la asistencia del día.</p>
+      </div>
+      <div class="card-footer">
         <a href="/escanear_qr/{{grupo.clave}}" class="btn btn-primary">Escanear código QR</a>
       </div>
     </div>
@@ -86,6 +112,8 @@
       <div class="card-body">
         <h5 class="card-title">Lista de estudiantes de este grupo</h5>
         <p class="card-text">Aquí podremos encontrar a los estudiantes que se encuentran ingresados en el grupo.</p>
+      </div>
+      <div class="card-footer">
         <a href="/lista_estudiantes/{{grupo.clave}}" class="btn btn-primary">Ver lista de estudiantes</a>
       </div>
     </div>
@@ -96,8 +124,11 @@
       <div class="card-body">
         <h5 class="card-title">Consulta de asistencias</h5>
         <p class="card-text">Aquí podremos ver las asistencias de los alumnos del día.</p>
+      </div>
+      <div class="card-footer">
         <a href="/asistencias/{{grupo.clave}}" class="btn btn-primary">Consultar asistencias</a>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
