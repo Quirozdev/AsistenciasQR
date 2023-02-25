@@ -9,19 +9,26 @@ from Usuarios import usuarios_blueprint
 
 
 
+
 app = Flask(__name__)
 
 SQLALCHEMY_DATABASE_URI = "mysql://{username}:{password}@{hostname}/{databasename}".format(
-    username="root",
-    password="luis1234",
-    hostname="localhost",
-    databasename="prueba",
+    username="AsistenciasQR",
+    password="basedatos3012",
+    hostname="AsistenciasQR.mysql.pythonanywhere-services.com",
+    databasename="AsistenciasQR$asistencias_qr_db",
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+# Para utilizar las cookies del session
+app.secret_key = "jBzTos1bzR92pTQ7"
+
+with app.app_context():
+    db.create_all()
 
 # esto permite que se pueda rutear a otras partes de la página en distintos archivos .py, para que no
 # se encuentre toda la parte del ruteo en un solo archivo
@@ -72,7 +79,7 @@ def index():
             mensaje = crear_grupo_asistencias(clave, nombre_grupo, descripcion, docente_propietario)
             # si el mensaje está vacío es porque el grupo se creó exitosamente
             if mensaje == "":
-                # se redirecciona para que se repita todo el proceso de obtener los datos como la variable grupos, 
+                # se redirecciona para que se repita todo el proceso de obtener los datos como la variable grupos,
                 # la cual se pudo actualizar si el docente creó exitosamente el grupo
                 return redirect('/')
             else:
@@ -84,7 +91,7 @@ def index():
             mensaje = unirse_grupo_asistencias(clave, usuario)
             # si el mensaje está vacío es porque el estudiante se unió exitosamente
             if mensaje == "":
-                # se redirecciona para que se repita todo el proceso de obtener los datos como la variable grupos, 
+                # se redirecciona para que se repita todo el proceso de obtener los datos como la variable grupos,
                 # la cual se pudo actualizar si el estudiante se unió exitosamente a un grupo
                 return redirect('/')
             else:
@@ -103,6 +110,7 @@ def sobre_nosotros():
 def pagina_no_permitida():
     return render_template('pagina_no_permitida.html')
 
+
 # para tener una página de error 404 personalizada
 @app.errorhandler(404)
 def pagina_no_encontrada(e):
@@ -113,9 +121,3 @@ def pagina_no_encontrada(e):
 @app.errorhandler(500)
 def pagina_error(e):
     return render_template('500.html'), 500
-    
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run("127.0.0.1", debug=True)
