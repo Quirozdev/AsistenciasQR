@@ -1,17 +1,34 @@
 {% extends "base.html" %}
-{% block title %}Mi cuenta{% endblock %}
+{% block title %}Cuenta{% endblock %}
 {% block head %}
 {{super()}}
+<style>
+    body {
+        background-color:black;
+    }
+    .contenedor {
+        text-align: center;
+        padding: 20px;
+        margin: 10px;
+    }
+
+    p {
+        padding: 15px;
+    }
+</style>
 {% endblock %}
 {% block body %}
-<h1>Cuenta:</h1>
-{% if session['usuario'] == usuario.expediente %}
-    <a href="/modificar_cuenta/{{usuario.expediente}}" class="btn btn-primary">Modificar cuenta</a>
-{% endif %}
-<p><strong>Expediente: </strong>{{usuario.expediente}}</p>
-<p><strong>Tipo de usuario: </strong>{{usuario.tipo_usuario}}</p>
-<p><strong>Nombre: </strong>{{usuario.nombre}}</p>
-<p><strong>Apellido Paterno: </strong>{{usuario.apellido_paterno}}</p>
-<p><strong>Apellido Materno: </strong>{{usuario.apellido_materno}}</p>
-<p><strong>Correo: </strong>{{usuario.correo}}</p>
+<div class="contenedor">
+    <div align="center"><img src="/static/img/micuenta.png" width="150" height="150"></div>
+    <h1 style="color:white ;">Cuenta:</h1>
+    <p class= "h5" style="color:white ;"><strong>Expediente: </strong>{{usuario.expediente}}</p>
+    <p class= "h5" style="color:white ;"><strong>Tipo de usuario: </strong>{{usuario.tipo_usuario}}</p>
+    <p class= "h5" style="color:white ;"><strong>Nombre: </strong>{{usuario.nombre}}</p>
+    <p class= "h5" style="color:white ;"><strong>Apellido Paterno: </strong>{{usuario.apellido_paterno}}</p>
+    <p class= "h5" style="color:white ;"><strong>Apellido Materno: </strong>{{usuario.apellido_materno}}</p>
+    <p class= "h5" style="color:white ;"><strong>Correo: </strong>{{usuario.correo}}</p>
+    {% if session['usuario'] == usuario.expediente %}
+        <a href="/modificar_cuenta/{{usuario.expediente}}" class="btn btn-primary">Modificar cuenta</a>
+    {% endif %}
+</div>
 {% endblock %}
